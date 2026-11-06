@@ -5,7 +5,7 @@ The panel reads your resume, your GitHub code and your target role, then asks yo
 
 Built for the Gnani.ai Great Indian AI Internship Challenge on **Gnani Prisma** (speech-to-text), **Gnani Timbre v3.0** (expressive voices) and **Gnani voice cloning**.
 
-Live: **https://board-room-five.vercel.app** · three 1-minute demos on the home page (UPSC in English and Hindi, software placement in English; pre-recorded, no credits)
+Live: **https://board-room-five.vercel.app** · three 1-minute demos on the home page (UPSC in English and Hindi, software placement in English; pre-recorded, no credits; the candidate speaks in a Gnani clone of my own voice, Hindi and English)
 
 > Practice tool. Not affiliated with UPSC, any recruiter or any government body.
 

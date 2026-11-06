@@ -95,13 +95,13 @@ async def clone_embedding(audio_bytes: bytes, filename: str = "voice.wav") -> di
     return emb
 
 
-async def speak_cloned(text: str, embedding, language: str = "auto") -> bytes:
+async def speak_cloned(text: str, embedding, language: str = "auto", container: str = "mp3") -> bytes:
     """One sentence in the cloned voice (the clone model cannot stream or take tags)."""
     spk = embedding if isinstance(embedding, dict) and "embedding" in embedding \
         else {"embedding": embedding, "shape": [1, 768], "dtype": "torch.bfloat16"}
     body = {
         "text": text, "model": "vachana-vc-v1", "language": language, "speaker_embedding": spk,
-        "audio_config": {"sample_rate": 24000, "num_channels": 1, "sample_width": 2, "container": "mp3"},
+        "audio_config": {"sample_rate": 24000, "num_channels": 1, "sample_width": 2, "container": container},
     }
     r = await _post("/api/v1/tts/inference", "Cloned TTS", timeout=90, json=body)
     return r.content

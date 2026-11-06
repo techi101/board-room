@@ -445,7 +445,7 @@ async function runDemo(which = "") {
   for (const [i, step] of demo.steps.entries()) {
     $("progressFill").style.width = `${((i + 1) / demo.steps.length) * 100}%`;
     const who = step.speaker === "candidate" ? null : step.speaker;
-    $("speaker").textContent = who ? memberOf(who).title : "Candidate";
+    $("speaker").textContent = who ? memberOf(who).title : (demo.candidate_label || "Candidate");
     $("question").textContent = step.caption;
     $("you").textContent = step.speaker === "candidate" ? "Candidate is answering…" : "";
     highlight(who);
