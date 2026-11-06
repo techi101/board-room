@@ -4,85 +4,123 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Board Room</title>
-  <meta name="description" content="Face a real interview panel by voice, in Hindi or English. UPSC board, software placements, CA, MBA, bank PO and any role. Built on Gnani Prisma and Timbre." />
+  <meta name="description" content="Face a real interview panel by voice, in Hindi or English. Civil services board, software placements, CA, MBA, bank PO and any role. Built on Gnani Prisma and Timbre." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Noto+Serif+Devanagari:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-  <header>
-    <h1>Board Room</h1>
-    <p class="tag">Sit in front of a real-sounding interview panel and answer out loud, in Hindi or English. The panel reads your resume, your GitHub and your target role.</p>
-    <p class="disclaimer">Practice tool. Not affiliated with UPSC, any recruiter or any government body. Voices: Gnani Timbre · Listening: Gnani Prisma.</p>
-    <p id="status" class="status"></p>
-  </header>
+  <a href="#main" class="skip">Skip to content</a>
+  <nav class="top" aria-label="Progress">
+    <a href="/" class="wordmark">Board<span>Room</span></a>
+    <span class="steps" id="steps"><i data-s="step-track">Track</i><i data-s="step-intake">About you</i><i data-s="step-dossier">Briefing</i><i data-s="room">Interview</i><i data-s="report">Feedback</i></span>
+    <span class="built">Voices by <b>Gnani</b> Timbre · Listening by Prisma</span>
+  </nav>
 
-  <!-- 1. Track -->
-  <section id="step-track">
-    <div class="between"><h2>1. Which interview are you preparing for?</h2><button id="demoBtn">▶ Watch a 1-minute demo</button></div>
-    <div id="tracks" class="tracks"></div>
-  </section>
-
-  <!-- 2. Intake -->
-  <section id="step-intake" hidden>
-    <h2>2. Tell the panel about you</h2>
-    <p class="hint">Everything is used only for this interview and is not stored.</p>
-    <form id="intake">
-      <div id="trackFields"></div>
-      <label>Resume (PDF, optional) <input type="file" name="resume" accept="application/pdf" /></label>
-      <details><summary>…or paste resume text</summary><textarea name="resume_text" rows="5"></textarea></details>
-      <label id="ghWrap">GitHub repo or profile (optional) <input name="github_url" placeholder="github.com/you/your-project" /></label>
-      <label id="jdWrap">Job description or target role (optional) <textarea name="jd" rows="3" placeholder="Paste the JD, or just write e.g. 'SDE intern at a fintech startup'"></textarea></label>
-      <div class="row">
-        <label>Language <select name="lang" id="langSel"></select></label>
-        <label>Length <select name="plan" id="planSel"></select></label>
-        <label>Panel mood
-          <select name="pressure"><option value="friendly">Friendly</option><option value="standard" selected>Standard</option><option value="stress">Stress interview</option></select>
-        </label>
+  <main id="main">
+    <!-- 1. Track -->
+    <section id="step-track" class="page">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">Mock interviews, out loud</p>
+          <h1>Practise the interview,<br /><em>not just the answers.</em></h1>
+          <p class="lede">A panel that reads your resume and your GitHub, speaks Hindi or English, interrupts when you ramble, and tells you exactly what was missing.</p>
+          <div class="hero-actions">
+            <button id="demoBtn" class="btn ghost"><span class="play"></span>Watch a 1-minute board</button>
+            <span class="note">Pre-recorded · no sign-up</span>
+          </div>
+        </div>
+        <figure class="preview" aria-hidden="true">
+          <div class="pv-plates">
+            <span>Member</span><span class="on">Chairperson</span><span>Member</span>
+          </div>
+          <blockquote class="hi">“आपने इंजीनियरिंग की है, फिर भी प्रशासन क्यों?”</blockquote>
+          <figcaption><span class="dot"></span>Chairperson is speaking</figcaption>
+        </figure>
       </div>
-      <label class="check"><input type="checkbox" name="browserVoice" /> Save credits: use my browser's voice instead of Gnani voices</label>
-      <div class="between"><button type="button" id="back1">← Back</button><button type="submit" class="primary" id="prepBtn">Brief the panel</button></div>
-    </form>
-  </section>
 
-  <!-- 3. Dossier -->
-  <section id="step-dossier" hidden>
-    <h2>3. What the panel knows about you</h2>
-    <p class="hint">Check this. The panel can only ask personal questions from what is here.</p>
-    <div id="dossier"></div>
-    <div class="between"><button id="back2">← Edit</button><button id="startBtn" class="primary">Enter the room</button></div>
-  </section>
+      <h2 class="section-title">Which interview are you preparing for?</h2>
+      <div id="tracks" class="tracks"></div>
+      <p class="fine">A practice tool. Not affiliated with UPSC, any recruiter or any government body.</p>
+    </section>
+
+    <!-- 2. Intake -->
+    <section id="step-intake" class="page narrow" hidden>
+      <p class="eyebrow" id="intakeTrack"></p>
+      <h2 class="page-title">Tell the panel about yourself</h2>
+      <p class="sub">Everything here is used only for this interview and is never stored.</p>
+      <form id="intake" class="form">
+        <div id="trackFields" class="grid-fields"></div>
+        <div class="field">
+          <span class="lbl">Resume <em>optional</em></span>
+          <label class="drop"><input type="file" name="resume" accept="application/pdf" id="resumeIn" /><span id="dropText">Drop your PDF here, or <u>browse</u></span></label>
+          <details class="inline"><summary>Paste text instead</summary><textarea name="resume_text" rows="5"></textarea></details>
+        </div>
+        <label class="field" id="ghWrap"><span class="lbl">GitHub repo or profile <em>optional</em></span><input name="github_url" placeholder="github.com/you/your-project" /></label>
+        <label class="field" id="jdWrap"><span class="lbl">Job description or target role <em>optional</em></span><textarea name="jd" rows="3" placeholder="Paste the JD, or write something like “SDE intern at a fintech startup”"></textarea></label>
+        <div class="grid-3">
+          <label class="field"><span class="lbl">Language</span><select name="lang" id="langSel"></select></label>
+          <label class="field"><span class="lbl">Length</span><select name="plan" id="planSel"></select></label>
+          <label class="field"><span class="lbl">Panel mood</span>
+            <select name="pressure"><option value="friendly">Friendly</option><option value="standard" selected>Standard</option><option value="stress">Stress interview</option></select>
+          </label>
+        </div>
+        <label class="switch"><input type="checkbox" name="browserVoice" /><span></span>Save credits: use my browser’s voice instead of Gnani voices</label>
+        <div class="actions"><button type="button" id="back1" class="btn text">← Change track</button><button type="submit" class="btn primary" id="prepBtn">Brief the panel</button></div>
+      </form>
+    </section>
+
+    <!-- 3. Dossier -->
+    <section id="step-dossier" class="page narrow" hidden>
+      <p class="eyebrow">Briefing note</p>
+      <h2 class="page-title">What the panel knows about you</h2>
+      <p class="sub">Check it. The panel can only ask personal questions from what is written here.</p>
+      <article id="dossier" class="dossier"></article>
+      <div class="actions"><button id="back2" class="btn text">← Edit details</button><button id="startBtn" class="btn primary">Enter the room</button></div>
+    </section>
+  </main>
 
   <!-- 4. Room -->
-  <section id="room" hidden>
-    <div class="between"><span id="progress" class="hint"></span><button id="endBtn">End interview</button></div>
-    <div id="board" class="board"></div>
-    <div class="caption"><span id="speaker"></span><p id="question"></p></div>
+  <section id="room" class="room" hidden>
+    <div class="room-top">
+      <span id="progress"></span>
+      <div class="progress-bar"><i id="progressFill"></i></div>
+      <button id="endBtn" class="btn text light">End interview</button>
+    </div>
+    <div id="board" class="table"></div>
+    <div class="stage">
+      <p id="speaker" class="speaker"></p>
+      <p id="question" class="question" aria-live="polite"></p>
+    </div>
     <div class="answer">
-      <button id="micBtn" class="primary">Hold SPACE or click to answer</button>
-      <span id="timer">0s</span>
-      <p class="hint">The panel cuts you off after <span id="limit"></span> s, like a real one (rule-based).</p>
-      <details id="typeBox"><summary>Type instead</summary>
-        <textarea id="typed" rows="3"></textarea><button id="sendTyped">Send answer</button>
+      <button id="micBtn" class="mic" aria-label="Answer"><span class="ring" id="micRing"></span><svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></button>
+      <p class="mic-hint"><span id="micLabel">Hold <kbd>Space</kbd> or tap to answer</span> · <span id="timer">0:00</span></p>
+      <p class="limit">The panel cuts you off after <span id="limit"></span> seconds.</p>
+      <p id="you" class="you" aria-live="polite"></p>
+      <details id="typeBox" class="typebox"><summary>Type your answer instead</summary>
+        <textarea id="typed" rows="3" placeholder="Type and press Send"></textarea><button id="sendTyped" class="btn primary small">Send</button>
       </details>
-      <p id="you" class="you"></p>
     </div>
   </section>
 
   <!-- 5. Report -->
-  <section id="report" hidden>
-    <div class="between"><h2>Panel feedback</h2><button onclick="window.print()">Save as PDF</button></div>
+  <section id="report" class="page narrow" hidden>
+    <div class="report-head"><div><p class="eyebrow">Panel feedback</p><h2 class="page-title">How it went</h2></div><button onclick="window.print()" class="btn ghost small">Save as PDF</button></div>
     <div id="reportBody"></div>
     <div id="clone" class="clone">
+      <p class="eyebrow">Optional</p>
       <h3>Hear your better answers in your own voice</h3>
-      <p>Optional. Read the paragraph below aloud for 20 seconds. Your voice is used only in this session to replay
-        <b>your own points</b>, restructured. Nothing new is added. The audio is labelled "AI voice" and is not stored.</p>
+      <p>Read the lines below aloud for 20 seconds. Your voice is used only in this session to replay <b>your own points</b>, restructured. Nothing new is added, the audio is marked “AI voice”, and nothing is stored.</p>
       <blockquote id="cloneScript"></blockquote>
-      <label class="check"><input type="checkbox" id="consent" /> This is my own voice and I agree to it being cloned for this session only.</label>
-      <button id="cloneRec" disabled>Record 20 s</button>
+      <label class="switch"><input type="checkbox" id="consent" /><span></span>This is my own voice and I agree to it being cloned for this session only.</label>
+      <button id="cloneRec" class="btn primary small" disabled>Record 20 seconds</button>
       <div id="cloneOut"></div>
     </div>
-    <button id="again" class="primary">New interview</button>
+    <div class="actions"><span></span><button id="again" class="btn primary">Start a new interview</button></div>
   </section>
 
+  <footer class="foot" id="status"></footer>
   <script type="module" src="/static/app.js"></script>
 </body>
 </html>

@@ -1,9 +1,18 @@
 import { WavRecorder } from "./recorder.js";
 
 const $ = (id) => document.getElementById(id);
-const show = (id) => ["step-track", "step-intake", "step-dossier", "room", "report"].forEach((s) => ($(s).hidden = s !== id));
-const FACES = ["🧑‍⚖️", "👩‍💼", "👨‍🔬", "👩‍🏫", "👨‍💼"];
-const ICONS = { upsc: "🏛️", software: "💻", core: "⚙️", ca: "📊", mba: "🎓", bank: "🏦", consulting: "📈", custom: "🧩" };
+const ORDER = ["step-track", "step-intake", "step-dossier", "room", "report"];
+const show = (id) => {
+  ORDER.forEach((s) => ($(s).hidden = s !== id));
+  document.body.classList.toggle("in-room", id === "room");
+  const at = ORDER.indexOf(id);
+  document.querySelectorAll("#steps i").forEach((el) => {
+    const i = ORDER.indexOf(el.dataset.s);
+    el.className = i === at ? "on" : i < at ? "done" : "";
+  });
+  window.scrollTo({ top: 0 });
+};
+const initials = (t) => t.replace(/\(.*?\)/g, "").split(/\s+/).filter(Boolean).map((w) => (/\d/.test(w) ? w : w[0])).join("").slice(0, 2).toUpperCase();
 const FIELD_DEFS = {
   home: ["Home state and district", "e.g. Bihar, Muzaffarpur"],
   graduation: ["Graduation (degree, college)", "e.g. B.Tech ECE, NSUT"],
@@ -23,22 +32,26 @@ const LABELS = { intro: "Introduction", why: "Motivation", resume: "Resume", pro
   case: "Case", home: "Home state", hobby: "Hobbies", closing: "Closing" };
 
 let CFG, TRACK, S, pending, rec, tick, busy = false, demoMode = false;
+const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 const strip = (t) => t.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 async function init() {
   CFG = await (await fetch("/api/status")).json();
-  $("status").textContent = `Gnani voice: ${CFG.gnani ? "on" : "off (browser voice + typing)"} · Panel AI: ${CFG.llm ? "on" : "off (fixed questions)"}`;
-  $("tracks").innerHTML = Object.entries(CFG.tracks).map(([k, t]) =>
-    `<button class="track" data-k="${k}"><span class="ico">${ICONS[k] || "🎤"}</span><b>${esc(t.name)}</b><small>${esc(t.tag)}</small><small class="muted">${t.panel.length}-member panel</small></button>`).join("");
+  $("status").textContent = `Gnani voices ${CFG.gnani ? "on" : "off: browser voice and typing"} · Panel ${CFG.llm ? "live" : "offline: fixed questions"}`;
+  $("tracks").innerHTML = Object.entries(CFG.tracks).map(([k, t], i) =>
+    `<button class="track${i === 0 ? " feature" : ""}" data-k="${k}"><span class="num">${String(i + 1).padStart(2, "0")}</span>
+      <span class="name">${esc(t.name)}</span><span class="tag">${esc(t.tag)}</span>
+      <span class="panel">${t.panel.map((m) => esc(m.title)).join(" · ")}</span><span class="arrow" aria-hidden="true">→</span></button>`).join("");
   document.querySelectorAll(".track").forEach((b) => (b.onclick = () => pickTrack(b.dataset.k)));
 }
 
 function pickTrack(k) {
   TRACK = k;
   const t = CFG.tracks[k];
+  $("intakeTrack").textContent = t.name;
   $("trackFields").innerHTML = t.fields.filter((f) => f !== "github").map((f) =>
-    `<label>${FIELD_DEFS[f][0]} <input name="f_${f}" placeholder="${esc(FIELD_DEFS[f][1])}" /></label>`).join("");
+    `<label class="field"><span class="lbl">${FIELD_DEFS[f][0]}</span><input name="f_${f}" placeholder="${esc(FIELD_DEFS[f][1])}" /></label>`).join("");
   $("ghWrap").hidden = !t.fields.includes("github");
   $("langSel").innerHTML = t.langs.map((l) => `<option value="${l}">${LANG_NAMES[l]}</option>`).join("");
   $("planSel").innerHTML = Object.entries(t.lengths).map(([p, n]) => `<option value="${p}">${p === "short" ? "Quick" : "Full"} (${n} questions)</option>`).join("");
@@ -61,7 +74,7 @@ $("intake").onsubmit = async (e) => {
   const file = fd.get("resume");
   if (file && file.size) body.append("resume", file);
   $("prepBtn").disabled = true;
-  $("prepBtn").textContent = "The panel is reading your file… (up to 30 s)";
+  $("prepBtn").textContent = "Reading your file…";
   try {
     const r = await fetch("/api/intake", { method: "POST", body });
     if (!r.ok) throw new Error(await r.text());
@@ -83,10 +96,10 @@ function list(title, items, fmt = (x) => esc(x)) {
 function renderDossier(d) {
   const f = Object.entries(d.fields || {}).map(([k, v]) => `<li><b>${esc(FIELD_DEFS[k]?.[0] || k)}:</b> ${esc(v)}</li>`).join("");
   $("dossier").innerHTML =
-    (d.summary ? `<p>${esc(d.summary)}</p>` : "") +
+    (d.summary ? `<p class="summary">${esc(d.summary)}</p>` : "") +
     (f ? `<ul>${f}</ul>` : "") +
     list("Projects", d.projects, (p) => `<b>${esc(p.name)}</b>: ${esc(p.what)} <span class="muted">${esc(p.stack)}</span>`) +
-    list("Experience", d.experience) + list("Skills", d.skills?.length ? [d.skills.join(", ")] : []) +
+    list("Experience", d.experience) + (d.skills?.length ? `<h4>Skills</h4><div class="chips">${d.skills.map((x) => `<span>${esc(x)}</span>`).join("")}</div>` : "") +
     (d.repo ? `<h4>GitHub: <a href="${esc(d.repo.url)}" target="_blank" rel="noopener">${esc(d.repo.name)}</a></h4><p class="muted">Files read: ${d.repo.files_read.map(esc).join(", ")}</p>` : "") +
     list("Code facts the panel may ask about", d.repo_facts, (x) => `<code>${esc(x.path)}</code> ${esc(x.fact)}`) +
     (d.repo_error ? `<p class="warn">GitHub: ${esc(d.repo_error)}</p>` : "") +
@@ -95,12 +108,35 @@ function renderDossier(d) {
 }
 
 function renderBoard() {
-  $("board").style.gridTemplateColumns = `repeat(${CFG.tracks[S.track].panel.length}, 1fr)`;
-  $("board").innerHTML = CFG.tracks[S.track].panel.map((m, i) =>
-    `<div class="member" id="mem-${m.id}"><div class="face">${FACES[i]}</div>${esc(m.title)}</div>`).join("");
+  $("board").innerHTML = CFG.tracks[S.track].panel.map((m) =>
+    `<div class="seat" id="mem-${m.id}"><div class="avatar" aria-hidden="true">${esc(initials(m.title))}</div><div class="plate">${esc(m.title)}</div></div>`).join("");
 }
 const memberOf = (id) => CFG.tracks[S.track].panel.find((m) => m.id === id);
-const highlight = (id) => document.querySelectorAll(".member").forEach((el) => el.classList.toggle("speaking", el.id === `mem-${id}`));
+const highlight = (id) => document.querySelectorAll(".seat").forEach((el) => el.classList.toggle("speaking", el.id === `mem-${id}`));
+
+// Live voice level -> CSS --lvl, so the aura around the speaker follows the real audio.
+let actx, analyser, levelBuf;
+function setLevel(v) { document.documentElement.style.setProperty("--lvl", v.toFixed(3)); }
+function meter(audio) {
+  try {
+    actx = actx || new AudioContext();
+    if (actx.state === "suspended") actx.resume();
+    const src = actx.createMediaElementSource(audio);
+    analyser = analyser || Object.assign(actx.createAnalyser(), { fftSize: 512 });
+    levelBuf = levelBuf || new Uint8Array(analyser.fftSize);
+    src.connect(analyser);
+    analyser.connect(actx.destination);
+    const loop = () => {
+      if (audio.ended || audio.paused) return setLevel(0);
+      analyser.getByteTimeDomainData(levelBuf);
+      let sum = 0;
+      for (const b of levelBuf) sum += (b - 128) ** 2;
+      setLevel(Math.min(1, Math.sqrt(sum / levelBuf.length) / 40));
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  } catch { /* metering is decoration only */ }
+}
 
 async function speak(text, speaker) {
   highlight(speaker);
@@ -119,7 +155,12 @@ async function speak(text, speaker) {
 
 function playBlob(blob) { return playUrl(URL.createObjectURL(blob)); }
 function playUrl(url) {
-  return new Promise((res) => { const a = new Audio(url); a.onended = res; a.onerror = res; a.play().catch(res); });
+  return new Promise((res) => {
+    const a = new Audio(url);
+    a.onended = a.onerror = () => { setLevel(0); res(); };
+    meter(a);
+    a.play().catch(res);
+  });
 }
 function browserSpeak(text) {
   return new Promise((res) => {
@@ -166,7 +207,8 @@ async function nextTurn() {
   const n = data.next;
   if (n.done) return finish();
   pending = { speaker: n.speaker, question: strip(n.text) };
-  $("progress").textContent = `Question ${n.index + 1} of ${n.total} · ${LABELS[n.qtype] || ""}`;
+  $("progress").textContent = `${n.index + 1} / ${n.total} · ${LABELS[n.qtype] || ""}`;
+  $("progressFill").style.width = `${((n.index + 1) / n.total) * 100}%`;
   $("speaker").textContent = n.title;
   $("question").textContent = strip(n.text);
   $("you").textContent = "";
@@ -182,10 +224,11 @@ async function startAnswer() {
     rec = null; $("you").textContent = "Microphone not available. Use 'Type instead'."; $("typeBox").open = true; return;
   }
   $("micBtn").classList.add("rec");
-  $("micBtn").textContent = "Recording… release SPACE or click to stop";
+  $("micLabel").textContent = "Listening… release Space or tap to finish";
   tick = setInterval(() => {
     const s = Math.floor(rec.seconds());
-    $("timer").textContent = `${s}s`;
+    setLevel(rec.level || 0);
+    $("timer").textContent = clock(s);
     if (s >= CFG.pressure[S.pressure]) stopAnswer();
   }, 250);
 }
@@ -195,7 +238,8 @@ async function stopAnswer() {
   clearInterval(tick);
   const r = rec; rec = null; busy = true;
   $("micBtn").classList.remove("rec");
-  $("micBtn").textContent = "Hold SPACE or click to answer";
+  setLevel(0);
+  $("micLabel").innerHTML = "Hold <kbd>Space</kbd> or tap to answer";
   $("micBtn").disabled = true;
   const { chunks, seconds } = await r.stop();
   $("you").textContent = "Listening to your answer…";
@@ -218,7 +262,7 @@ function submitAnswer(text, seconds) {
   $("you").textContent = text ? `You said: ${text}` : "(no answer heard)";
   S.history.push({ ...pending, answer: text, seconds });
   pending = null;
-  $("timer").textContent = "0s";
+  $("timer").textContent = "0:00";
   nextTurn();
 }
 
@@ -232,24 +276,30 @@ async function finish() {
 }
 
 function renderReport(R) {
-  const bar = (k, v) => `<div class="bar"><span>${esc(k.replace(/_/g, " "))}</span><i style="width:${Math.max(0, Math.min(10, v)) * 10}%"></i><b>${esc(v)}/10</b></div>`;
+  const bar = (k, v) => `<div class="bar"><span>${esc(k.replace(/_/g, " "))}</span><b>${esc(v)}</b><div class="track-line"><i style="width:${Math.max(0, Math.min(10, v)) * 10}%"></i></div></div>`;
   const D = R.delivery || {};
   const fillers = Object.entries(D.filler_words || {}).map(([w, n]) => `${esc(w)} ×${n}`).join(", ") || "none detected";
   const qs = (R.answers || []).map((a) => {
     const h = S.history[a.q - 1] || {};
-    return `<div class="qa"><b>Q${a.q}.</b> ${esc(h.question)}<br><i>You:</i> ${esc(h.answer || "—")}
-      <p><b>Verdict:</b> ${esc(a.verdict)}${a.missing ? `<br><b>Missing:</b> ${esc(a.missing)}` : ""}</p>
-      ${a.better ? `<p class="better"><b>Your points, better structured:</b> ${esc(a.better)}</p>` : ""}</div>`;
+    return `<div class="qa"><p class="q"><b>Q${a.q}</b>${esc(h.question)}</p>
+      <p class="a"><i>You said</i>${esc(h.answer || "nothing recorded")}</p>
+      <p class="v"><span>Verdict.</span> ${esc(a.verdict)}</p>
+      ${a.missing ? `<p class="v"><span>Missing.</span> ${esc(a.missing)}</p>` : ""}
+      ${a.better ? `<p class="better"><span>Your own points, better structured</span>${esc(a.better)}</p>` : ""}</div>`;
   }).join("");
+  const block = (t, items) => (items && items.length ? `<div class="report-block"><h4>${t}</h4><ol>${items.map((x) => `<li>${esc(x)}</li>`).join("")}</ol></div>` : "");
   $("reportBody").innerHTML = `
-    <p class="overall"><b>${esc(R.overall)}/10</b> ${esc(R.summary)}</p>
-    <div class="grid2"><div>${Object.entries(R.scores || {}).map(([k, v]) => bar(k, v)).join("")}</div>
-    <div class="delivery"><h4>How you spoke <span class="muted">(rule-based, approximate)</span></h4>
-      <p>Pace: <b>${D.words_per_minute ?? "–"}</b> words/min · Average answer: <b>${D.avg_answer_seconds ?? 0}s</b> · Longest: <b>${D.longest_answer_seconds ?? 0}s</b></p>
-      <p>Filler words: ${fillers}</p></div></div>
-    ${list("Top tips", R.top_tips)}
-    ${list("Prepare these before the real interview", R.prepare_next)}
-    <h3>Question by question</h3>${qs}`;
+    <div class="score-hero"><div class="big">${esc(R.overall)}<small>/10</small></div><p>${esc(R.summary)}</p></div>
+    <div class="cols"><div>${Object.entries(R.scores || {}).map(([k, v]) => bar(k, v)).join("")}</div>
+      <div class="delivery"><h4>How you spoke</h4>
+        <div class="stat"><span>Pace</span><b>${D.words_per_minute ?? "–"} words/min</b></div>
+        <div class="stat"><span>Average answer</span><b>${D.avg_answer_seconds ?? 0} s</b></div>
+        <div class="stat"><span>Longest answer</span><b>${D.longest_answer_seconds ?? 0} s</b></div>
+        <div class="stat"><span>Filler words</span><b>${fillers}</b></div>
+        <p class="muted">Counted by fixed rules from the transcript, so approximate.</p></div></div>
+    ${block("Fix these first", R.top_tips)}
+    ${block("Prepare these before the real interview", R.prepare_next)}
+    <div class="report-block"><h4>Question by question</h4>${qs}</div>`;
   $("clone").hidden = !CFG.gnani || !(R.answers || []).some((a) => a.better);
 }
 
@@ -288,10 +338,13 @@ async function runDemo() {
   demoMode = true;
   S = { track: demo.track, lang: demo.lang, history: [] };
   show("room");
+  $("room").classList.add("demo");
   renderBoard();
   $("micBtn").disabled = true;
-  $("progress").textContent = "Demo · pre-recorded Gnani voices · no credits used";
-  for (const step of demo.steps) {
+  $("progress").textContent = "Demo · recorded with Gnani voices";
+  $("progressFill").style.width = "0%";
+  for (const [i, step] of demo.steps.entries()) {
+    $("progressFill").style.width = `${((i + 1) / demo.steps.length) * 100}%`;
     const who = step.speaker === "candidate" ? null : step.speaker;
     $("speaker").textContent = who ? memberOf(who).title : "Candidate";
     $("question").textContent = step.caption;
@@ -302,6 +355,7 @@ async function runDemo() {
     await new Promise((x) => setTimeout(x, 350));
   }
   S.history = demo.history;
+  $("room").classList.remove("demo");
   show("report");
   renderReport(demo.report);
   $("clone").hidden = true;
@@ -327,3 +381,9 @@ $("cloneRec").onclick = cloneFlow;
 $("again").onclick = () => location.reload();
 
 init();
+
+$("resumeIn").onchange = (e) => {
+  const f = e.target.files[0];
+  $("dropText").textContent = f ? `✓ ${f.name}` : "Drop your PDF here, or browse";
+  e.target.closest(".drop").classList.toggle("has", !!f);
+};

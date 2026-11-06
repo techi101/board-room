@@ -11,7 +11,14 @@ export class WavRecorder {
     this.source = this.ctx.createMediaStreamSource(this.stream);
     this.node = this.ctx.createScriptProcessor(4096, 1, 1);
     this.samples = [];
-    this.node.onaudioprocess = (e) => this.samples.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+    this.level = 0;
+    this.node.onaudioprocess = (e) => {
+      const d = e.inputBuffer.getChannelData(0);
+      this.samples.push(new Float32Array(d));
+      let sum = 0;
+      for (let i = 0; i < d.length; i += 8) sum += d[i] * d[i];
+      this.level = Math.min(1, Math.sqrt(sum / (d.length / 8)) * 6); // 0..1, drives the voice aura
+    };
     this.source.connect(this.node);
     this.node.connect(this.ctx.destination);
     this.startedAt = performance.now();
