@@ -1,0 +1,142 @@
+{
+ "track": "software",
+ "lang": "en",
+ "steps": [
+  {
+   "speaker": "hr",
+   "caption": "Hi, welcome, please take a seat. Tell me briefly about something you built recently that you are proud of.",
+   "audio": "software_en/s0.mp3"
+  },
+  {
+   "speaker": "candidate",
+   "caption": "I built LaunchSwitch, a feature flag service. A team can switch a new feature on for five percent of users, watch it, and roll it back in one click. It runs on Node with SQLite and is deployed on Vercel.",
+   "audio": "software_en/s1.mp3"
+  },
+  {
+   "speaker": "lead",
+   "caption": "I opened your repo. In api slash index dot js, the database path points to slash tmp. On Vercel, what happens to that file when the function goes cold?",
+   "audio": "software_en/s2.mp3"
+  },
+  {
+   "speaker": "candidate",
+   "caption": "Um, it gets wiped. Slash tmp only lives as long as that instance, so the flags could reset. For a demo that was fine, but in production I would move it to a hosted database like Postgres.",
+   "audio": "software_en/s3.mp3"
+  },
+  {
+   "speaker": "senior",
+   "caption": "Good. He knows the limitation.",
+   "audio": "software_en/s4.mp3"
+  },
+  {
+   "speaker": "senior",
+   "caption": "Your rollout is a percentage. How do you make sure the same user always gets the same answer?",
+   "audio": "software_en/s5.mp3"
+  },
+  {
+   "speaker": "candidate",
+   "caption": "I hash the user ID together with the flag key, take it modulo one hundred, and compare that with the rollout percentage. Same input, same bucket, so it is deterministic.",
+   "audio": "software_en/s6.mp3"
+  },
+  {
+   "speaker": "em",
+   "caption": "Last one. It is Friday evening and a flag you shipped breaks checkout. What do you do?",
+   "audio": "software_en/s7.mp3"
+  },
+  {
+   "speaker": "candidate",
+   "caption": "First I turn the flag off, because that is the whole point of a flag. Then I tell the team, check the logs, and write a short note on what went wrong before I fix it properly.",
+   "audio": "software_en/s8.mp3"
+  },
+  {
+   "speaker": "hr",
+   "caption": "Thank you, that is all from our side. All the best.",
+   "audio": "software_en/s9.mp3"
+  }
+ ],
+ "history": [
+  {
+   "speaker": "hr",
+   "question": "Hi, welcome, please take a seat. Tell me briefly about something you built recently that you are proud of.",
+   "answer": "I built LaunchSwitch, a feature flag service. A team can switch a new feature on for five percent of users, watch it, and roll it back in one click. It runs on Node with SQLite and is deployed on Vercel.",
+   "seconds": 18
+  },
+  {
+   "speaker": "lead",
+   "question": "I opened your repo. In api slash index dot js, the database path points to slash tmp. On Vercel, what happens to that file when the function goes cold?",
+   "answer": "Um, it gets wiped. Slash tmp only lives as long as that instance, so the flags could reset. For a demo that was fine, but in production I would move it to a hosted database like Postgres.",
+   "seconds": 18
+  },
+  {
+   "speaker": "senior",
+   "question": "Your rollout is a percentage. How do you make sure the same user always gets the same answer?",
+   "answer": "I hash the user ID together with the flag key, take it modulo one hundred, and compare that with the rollout percentage. Same input, same bucket, so it is deterministic.",
+   "seconds": 18
+  },
+  {
+   "speaker": "em",
+   "question": "Last one. It is Friday evening and a flag you shipped breaks checkout. What do you do?",
+   "answer": "First I turn the flag off, because that is the whole point of a flag. Then I tell the team, check the logs, and write a short note on what went wrong before I fix it properly.",
+   "seconds": 18
+  }
+ ],
+ "report": {
+  "delivery": {
+   "answers": 4,
+   "words_per_minute": 120,
+   "avg_answer_seconds": 18,
+   "longest_answer_seconds": 18,
+   "filler_words": {
+    "um": 1,
+    "like": 1
+   },
+   "filler_total": 2
+  },
+  "overall": 8,
+  "summary": "You have a very strong grasp of practical engineering and system design for a fresher. Your project choice is relevant, and you clearly understand the trade-offs of your implementation. Your communication is crisp and to the point.",
+  "scores": {
+   "technical_depth": 8,
+   "project_ownership": 9,
+   "problem_solving": 8,
+   "communication": 9,
+   "culture_fit": 8
+  },
+  "answers": [
+   {
+    "q": 1,
+    "verdict": "Good, concise summary of the project's utility.",
+    "missing": "Mentioning the specific problem you were trying to solve or the technical challenge you faced during development.",
+    "better": "I built LaunchSwitch, a feature flag service that allows teams to toggle features for a percentage of users and perform one-click rollbacks. The application is built on Node with SQLite and deployed on Vercel."
+   },
+   {
+    "q": 2,
+    "verdict": "Excellent, you identified the ephemeral nature of serverless storage immediately.",
+    "missing": "Nothing, this was a perfect answer.",
+    "better": "The current setup uses temporary storage which causes flags to reset when the instance restarts. While this was acceptable for a demo, I would migrate to a hosted database like Postgres for production."
+   },
+   {
+    "q": 3,
+    "verdict": "Strong, you demonstrated knowledge of deterministic hashing.",
+    "missing": "Mentioning the importance of choosing a good hash function to avoid collisions or bias in distribution.",
+    "better": "I implement deterministic rollouts by hashing the user ID with the flag key and comparing the result against the percentage. This ensures that the same input consistently maps to the same bucket."
+   },
+   {
+    "q": 4,
+    "verdict": "Solid, you prioritized mitigation over debugging.",
+    "missing": "Explicitly mentioning the 'post-mortem' or 'root cause analysis' process to prevent recurrence.",
+    "better": "When an issue occurs, I immediately turn off the flag and inform the team. I then review the logs and document the problem before implementing a permanent fix."
+   }
+  ],
+  "top_tips": [
+   "Continue focusing on the 'why' behind your architectural choices.",
+   "When discussing production systems, always mention observability and monitoring.",
+   "Maintain this level of brevity; it shows confidence and respect for the interviewer's time."
+  ],
+  "prepare_next": [
+   "How would you handle a scenario where the flag service itself goes down?",
+   "Explain the difference between a client-side and server-side feature flag implementation.",
+   "What are the ACID properties, and why would you choose Postgres over SQLite for a production system?",
+   "How would you design a system to handle 10,000 requests per second for flag status?",
+   "Describe a time you had a technical disagreement with a peer and how you resolved it."
+  ]
+ }
+}

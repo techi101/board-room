@@ -1,0 +1,119 @@
+{
+ "track": "upsc",
+ "lang": "en",
+ "steps": [
+  {
+   "speaker": "chair",
+   "caption": "Good morning, please sit down. Your DAF says you are from Muzaffarpur and an engineer. Why leave engineering for administration?",
+   "audio": "upsc_en/s0.mp3"
+  },
+  {
+   "speaker": "candidate",
+   "caption": "Sir, during the floods I saw how the district administration ran the relief camps. As an engineer I can fix one machine, but in administration I can fix how a whole district works.",
+   "audio": "upsc_en/s1.mp3"
+  },
+  {
+   "speaker": "m1",
+   "caption": "Interesting answer.",
+   "audio": "upsc_en/s2.mp3"
+  },
+  {
+   "speaker": "m3",
+   "caption": "You mentioned floods. If you were the District Magistrate there, what three things would you do before the floods arrive?",
+   "audio": "upsc_en/s3.mp3"
+  },
+  {
+   "speaker": "candidate",
+   "caption": "First, inspect the embankments. Second, set up a village level warning system. And third, um, stock relief material in advance.",
+   "audio": "upsc_en/s4.mp3"
+  },
+  {
+   "speaker": "m4",
+   "caption": "And if a local politician insists that relief must reach his village first, what will you do?",
+   "audio": "upsc_en/s5.mp3"
+  },
+  {
+   "speaker": "candidate",
+   "caption": "Sir, I will politely refuse. Relief will be distributed by need, and I will put that decision on record in writing.",
+   "audio": "upsc_en/s6.mp3"
+  },
+  {
+   "speaker": "chair",
+   "caption": "Thank you. Your interview is over. All the best.",
+   "audio": "upsc_en/s7.mp3"
+  }
+ ],
+ "history": [
+  {
+   "speaker": "chair",
+   "question": "Good morning, please sit down. Your DAF says you are from Muzaffarpur and an engineer. Why leave engineering for administration?",
+   "answer": "Sir, during the floods I saw how the district administration ran the relief camps. As an engineer I can fix one machine, but in administration I can fix how a whole district works.",
+   "seconds": 18
+  },
+  {
+   "speaker": "m3",
+   "question": "You mentioned floods. If you were the District Magistrate there, what three things would you do before the floods arrive?",
+   "answer": "First, inspect the embankments. Second, set up a village level warning system. And third, um, stock relief material in advance.",
+   "seconds": 18
+  },
+  {
+   "speaker": "m4",
+   "question": "And if a local politician insists that relief must reach his village first, what will you do?",
+   "answer": "Sir, I will politely refuse. Relief will be distributed by need, and I will put that decision on record in writing.",
+   "seconds": 18
+  }
+ ],
+ "report": {
+  "delivery": {
+   "answers": 3,
+   "words_per_minute": 82,
+   "avg_answer_seconds": 18,
+   "longest_answer_seconds": 18,
+   "filler_words": {
+    "um": 1
+   },
+   "filler_total": 1
+  },
+  "overall": 7,
+  "summary": "The candidate demonstrates a strong sense of purpose and clear communication. The answers are grounded in the local context of Bihar, which is a positive. However, the response to the political pressure question needs more nuance regarding stakeholder management, and the flood management answer lacked technical depth expected from an engineer.",
+  "scores": {
+   "clarity": 8,
+   "honesty": 9,
+   "balance": 6,
+   "knowledge": 7,
+   "composure": 8
+  },
+  "answers": [
+   {
+    "q": 1,
+    "verdict": "Good, emotive, and connects personal background to the service.",
+    "missing": "A mention of how engineering analytical skills specifically aid administrative decision-making.",
+    "better": "I observed the district administration managing relief camps during the floods. While engineering allows me to fix a single machine, administration enables me to improve the functioning of an entire district."
+   },
+   {
+    "q": 2,
+    "verdict": "Acceptable, but lacks administrative depth.",
+    "missing": "Mention of inter-departmental coordination (NDRF/SDRF), community-based disaster management training, and mapping of vulnerable populations.",
+    "better": "I would inspect the embankments and establish a village-level warning system. Additionally, I would ensure relief materials are stocked in advance."
+   },
+   {
+    "q": 3,
+    "verdict": "Principled, but slightly naive in its directness.",
+    "missing": "A strategy to manage the politician's ego while maintaining integrity, such as explaining the objective criteria for distribution to gain their cooperation.",
+    "better": "I will politely refuse the request. I will distribute relief based on need and document this decision in writing."
+   }
+  ],
+  "top_tips": [
+   "Avoid being overly idealistic; acknowledge the complexity of political relationships in administration.",
+   "Use your engineering background to provide structured, data-driven solutions to administrative problems.",
+   "Maintain a calm, diplomatic tone even when discussing conflicts of interest."
+  ],
+  "prepare_next": [
+   "What are the specific geographical and socio-economic challenges unique to Muzaffarpur?",
+   "How would you handle a situation where a superior officer gives an order that conflicts with your ethical judgment?",
+   "Explain the 'Bihar Disaster Management Policy' and the role of the District Magistrate under the Disaster Management Act, 2005.",
+   "How can technology be leveraged to improve public service delivery in rural Bihar?",
+   "Discuss the 'Litchi' economy of Muzaffarpur and how you would improve the supply chain as an administrator."
+  ]
+ }
+}

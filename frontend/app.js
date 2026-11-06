@@ -430,8 +430,9 @@ async function cloneFlow() {
 }
 
 // Zero-credit demo: pre-recorded Gnani audio, played with captions.
-async function runDemo() {
-  const demo = await (await fetch("/static/demo/demo.json")).json();
+async function runDemo(which = "") {
+  const base = `/static/demo/${which ? which + "/" : ""}`;
+  const demo = await (await fetch(base + "demo.json")).json();
   demoMode = true;
   const g = ++gen;
   S = { track: demo.track, lang: demo.lang, history: [] };
@@ -480,7 +481,7 @@ $("camToggle").onchange = async (e) => {
   }
 };
 $("startBtn").onclick = startInterview;
-$("demoBtn").onclick = runDemo;
+document.querySelectorAll(".demo-btn").forEach((b) => (b.onclick = () => runDemo(b.dataset.demo)));
 $("endBtn").onclick = async () => {
   if (busy && !rec) return;
   if (rec) { clearInterval(tick); const r = rec; rec = null; await r.cancel(); $("micBtn").classList.remove("rec"); }

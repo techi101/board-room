@@ -272,3 +272,7 @@ body.in-room .foot { color: #5d5649; }
 .steps i.done { cursor: pointer; }
 .steps i.done:hover { text-decoration: underline; text-underline-offset: 3px; }
 #backRoom { margin-right: 4px; }
+
+/* ---------- demo picker ---------- */
+.hero-actions { flex-direction: column; align-items: flex-start; gap: 10px; }
+.demo-pick { display: flex; flex-wrap: wrap; gap: 8px; }
