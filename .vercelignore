@@ -3,3 +3,5 @@ backend/tts_cache
 tests
 tools
 __pycache__
+.env.local
+.vercel
