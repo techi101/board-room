@@ -12,12 +12,20 @@ export class WavRecorder {
     this.node = this.ctx.createScriptProcessor(4096, 1, 1);
     this.samples = [];
     this.level = 0;
+    this.voiceAt = null;   // index of the first buffer with speech
+    this.lastVoice = 0;    // performance.now() of the latest speech buffer
+    this.floor = null;     // background noise level, learnt in the first half second
     this.node.onaudioprocess = (e) => {
       const d = e.inputBuffer.getChannelData(0);
       this.samples.push(new Float32Array(d));
       let sum = 0;
       for (let i = 0; i < d.length; i += 8) sum += d[i] * d[i];
       this.level = Math.min(1, Math.sqrt(sum / (d.length / 8)) * 6); // 0..1, drives the voice aura
+      if (this.samples.length <= 5) { this.floor = Math.min(this.floor ?? 1, this.level); return; }
+      if (this.level > Math.max(0.08, (this.floor ?? 0) * 3)) {
+        if (this.voiceAt === null) this.voiceAt = this.samples.length - 1;
+        this.lastVoice = performance.now();
+      }
     };
     this.source.connect(this.node);
     this.node.connect(this.ctx.destination);
@@ -28,13 +36,29 @@ export class WavRecorder {
     return this.startedAt ? (performance.now() - this.startedAt) / 1000 : 0;
   }
 
+  get heard() { return this.voiceAt !== null; }
+  silentFor() { return this.heard ? (performance.now() - this.lastVoice) / 1000 : this.seconds(); }
+  speakingSeconds() {
+    return this.heard ? ((this.samples.length - this.voiceAt) * 4096) / this.ctx.sampleRate : 0;
+  }
+
+  // Stop without encoding anything (used when the candidate types instead or leaves).
+  async cancel() {
+    try { this.node.disconnect(); this.source.disconnect(); } catch {}
+    this.stream.getTracks().forEach((t) => t.stop());
+    await this.ctx.close().catch(() => {});
+    this.startedAt = null;
+  }
+
   async stop() {
     this.node.disconnect();
     this.source.disconnect();
     this.stream.getTracks().forEach((t) => t.stop());
     const rate = this.ctx.sampleRate;
     await this.ctx.close();
-    const pcm = downsample(concat(this.samples), rate, this.targetRate);
+    // Only send what follows the first speech (minus a short lead-in): saves listening credits.
+    if (this.voiceAt === null) { this.startedAt = null; return { chunks: [], seconds: 0, whole: null }; }
+    const pcm = downsample(concat(this.samples.slice(Math.max(0, this.voiceAt - 4))), rate, this.targetRate);
     const per = this.chunkSeconds * this.targetRate;
     const chunks = [];
     for (let i = 0; i < pcm.length; i += per) chunks.push(encodeWav(pcm.subarray(i, i + per), this.targetRate));

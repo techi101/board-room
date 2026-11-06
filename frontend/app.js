@@ -5,7 +5,10 @@ const cam = new InterviewCamera();
 
 const $ = (id) => document.getElementById(id);
 const ORDER = ["step-track", "step-intake", "step-dossier", "room", "report"];
-const show = (id) => {
+let current = "step-track";
+const show = (id, push = true) => {
+  if (push && id !== current) history.pushState({ id }, "");
+  current = id;
   ORDER.forEach((s) => ($(s).hidden = s !== id));
   document.body.classList.toggle("in-room", id === "room");
   const at = ORDER.indexOf(id);
@@ -35,6 +38,11 @@ const LABELS = { intro: "Introduction", why: "Motivation", resume: "Resume", pro
   case: "Case", home: "Home state", hobby: "Hobbies", closing: "Closing" };
 
 let CFG, TRACK, S, pending, rec, tick, busy = false, demoMode = false;
+// Hands-free answering: the mic opens after each question.
+const WAIT_TO_START = 20;   // seconds of silence before the panel moves on
+const END_PAUSE = 3;        // seconds of silence that end an answer
+let gen = 0;                // bumped when the candidate leaves the room; stale async work checks it
+let micDenied = false, curAudio = null;
 const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 const strip = (t) => t.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -160,6 +168,8 @@ function playBlob(blob) { return playUrl(URL.createObjectURL(blob)); }
 function playUrl(url) {
   return new Promise((res) => {
     const a = new Audio(url);
+    curAudio = a;
+    a._done = res;
     a.onended = a.onerror = () => { setLevel(0); res(); };
     meter(a);
     a.play().catch(res);
@@ -188,7 +198,34 @@ function ensureAudio() {
   if (actx.state === "suspended") actx.resume();
 }
 
+function stopVoices() {
+  try { speechSynthesis.cancel(); } catch {}
+  if (curAudio) { curAudio.pause(); curAudio._done?.(); curAudio = null; }
+  setLevel(0);
+}
+
+// Leave the room cleanly: stop voices, mic, camera and any in-flight turn.
+async function leaveRoom() {
+  gen++;
+  clearInterval(tick);
+  stopVoices();
+  if (rec) { const r = rec; rec = null; await r.cancel(); }
+  if (cam.recorder) await cam.stop();
+  else cam.disable($("camPreview"));
+  $("camToggle").checked = false; $("camPreview").hidden = true; $("camMsg").textContent = "";
+  $("recDot").hidden = true;
+  $("micBtn").classList.remove("rec");
+  $("room").classList.remove("demo");
+  highlight(null);
+  busy = false; pending = null;
+  const wasDemo = demoMode; demoMode = false;
+  return wasDemo ? "step-track" : "step-dossier";
+}
+
 function startInterview() {
+  gen++;
+  S.history = []; S.report = null; pending = null; busy = false;
+  $("typeBox").open = false; $("typed").value = ""; $("you").textContent = ""; $("timer").textContent = "0:00";
   if (cam.on) {
     ensureAudio();
     cam.start(actx, analyser);
@@ -203,13 +240,16 @@ function startInterview() {
 }
 
 async function nextTurn() {
+  const g = gen;
   busy = true;
   $("micBtn").disabled = true;
   $("question").textContent = "…";
   let data;
   try {
     data = await post("/api/turn", S);
+    if (g !== gen) return;
   } catch (e) {
+    if (g !== gen) return;
     $("question").textContent = "The panel could not respond (" + e.message + "). Click the button to retry.";
     busy = false; $("micBtn").disabled = false;
     return;
@@ -218,6 +258,7 @@ async function nextTurn() {
     $("speaker").textContent = memberOf(data.reaction.speaker).title;
     $("question").textContent = strip(data.reaction.text);
     await speak(data.reaction.text, data.reaction.speaker);
+    if (g !== gen) return;
   }
   const n = data.next;
   if (n.done) return finish();
@@ -229,35 +270,55 @@ async function nextTurn() {
   $("question").textContent = strip(n.text);
   $("you").textContent = "";
   await speak(n.text, n.speaker);
+  if (g !== gen) return;
   if (n.closing) { S.history.push({ ...pending, answer: "", seconds: 0 }); return finish(); }
   busy = false;
   $("micBtn").disabled = false;
+  if (!micDenied && !$("typed").value.trim()) startAnswer();
 }
 
 async function startAnswer() {
   if (busy || rec || !pending) return;
+  const g = gen;
   try { rec = new WavRecorder(); await rec.start(); } catch {
-    rec = null; $("you").textContent = "Microphone not available. Use 'Type instead'."; $("typeBox").open = true; return;
+    rec = null; micDenied = true;
+    $("you").textContent = "Microphone not available. Type your answer below."; $("typeBox").open = true; return;
   }
+  if (g !== gen) { const r = rec; rec = null; return r.cancel(); }
   $("micBtn").classList.add("rec");
-  $("micLabel").textContent = "Listening… release Space or tap to finish";
+  let waitFrom = performance.now();
   tick = setInterval(() => {
-    const s = Math.floor(rec.seconds());
+    if (!rec) return;
     setLevel(rec.level || 0);
-    $("timer").textContent = clock(s);
-    if (s >= CFG.pressure[S.pressure]) stopAnswer();
-  }, 250);
+    const spoke = rec.speakingSeconds();
+    $("timer").textContent = clock(Math.floor(spoke));
+    if (!rec.heard) {
+      if (document.activeElement === $("typed")) waitFrom = performance.now(); // typing: do not move on
+      const left = Math.max(0, Math.ceil(WAIT_TO_START - (performance.now() - waitFrom) / 1000));
+      $("micLabel").textContent = `Listening… start speaking when ready (${left}s)`;
+      if (left <= 0) stopAnswer();
+      return;
+    }
+    const pause = rec.silentFor();
+    $("micLabel").textContent = pause >= 1.2
+      ? `Paused… finishing in ${Math.max(1, Math.ceil(END_PAUSE - pause))}s (keep talking to continue)`
+      : "Listening… pause or tap the mic when you finish";
+    if (pause >= END_PAUSE || spoke >= CFG.pressure[S.pressure]) stopAnswer();
+  }, 200);
 }
 
 async function stopAnswer() {
   if (!rec) return;
   clearInterval(tick);
+  const g = gen;
   const r = rec; rec = null; busy = true;
   $("micBtn").classList.remove("rec");
   setLevel(0);
-  $("micLabel").innerHTML = "Hold <kbd>Space</kbd> or tap to answer";
+  $("micLabel").textContent = "The mic opens by itself after each question";
   $("micBtn").disabled = true;
   const { chunks, seconds } = await r.stop();
+  if (g !== gen) return;
+  if (!chunks.length) return submitAnswer("", 0);
   $("you").textContent = "Listening to your answer…";
   const parts = [];
   for (const [i, c] of chunks.entries()) {
@@ -266,6 +327,7 @@ async function stopAnswer() {
     fd.append("lang", S.lang);
     fd.append("seconds", String(Math.min(50, seconds - i * 50)));
     const resp = await fetch("/api/stt", { method: "POST", body: fd });
+    if (g !== gen) return;
     if (resp.ok) { parts.push((await resp.json()).transcript); continue; }
     $("you").textContent = resp.status === 429 ? "Today's free listening budget is used up. Please type your answer." : "Could not hear that. Please type your answer.";
     $("typeBox").open = true; busy = false; $("micBtn").disabled = false;
@@ -275,7 +337,7 @@ async function stopAnswer() {
 }
 
 function submitAnswer(text, seconds) {
-  $("you").textContent = text ? `You said: ${text}` : "(no answer heard)";
+  $("you").textContent = text ? `You said: ${text}` : "No answer heard. The panel moves on.";
   S.history.push({ ...pending, answer: text, seconds });
   pending = null;
   $("timer").textContent = "0:00";
@@ -283,6 +345,7 @@ function submitAnswer(text, seconds) {
 }
 
 async function finish() {
+  const g = gen;
   highlight(null);
   $("recDot").hidden = true;
   const video = await cam.stop();
@@ -290,8 +353,8 @@ async function finish() {
   showReplay(video);
   $("cloneScript").textContent = CLONE_SCRIPT[S.lang];
   $("reportBody").innerHTML = "<p>The panel is discussing your interview…</p>";
-  try { S.report = await post("/api/report", S); renderReport(S.report); }
-  catch (e) { $("reportBody").textContent = "Feedback failed: " + e.message; }
+  try { const R = await post("/api/report", S); if (g !== gen) return; S.report = R; renderReport(R); }
+  catch (e) { if (g === gen) $("reportBody").textContent = "Feedback failed: " + e.message; }
 }
 
 function renderReport(R) {
@@ -370,6 +433,7 @@ async function cloneFlow() {
 async function runDemo() {
   const demo = await (await fetch("/static/demo/demo.json")).json();
   demoMode = true;
+  const g = ++gen;
   S = { track: demo.track, lang: demo.lang, history: [] };
   show("room");
   $("room").classList.add("demo");
@@ -385,8 +449,10 @@ async function runDemo() {
     $("you").textContent = step.speaker === "candidate" ? "Candidate is answering…" : "";
     highlight(who);
     await playUrl(`/static/demo/${step.audio}`);
+    if (g !== gen) return;
     highlight(null);
     await new Promise((x) => setTimeout(x, 350));
+    if (g !== gen) return;
   }
   S.history = demo.history;
   $("room").classList.remove("demo");
@@ -415,17 +481,71 @@ $("camToggle").onchange = async (e) => {
 };
 $("startBtn").onclick = startInterview;
 $("demoBtn").onclick = runDemo;
-$("endBtn").onclick = () => { if (!rec && !busy) finish(); };
+$("endBtn").onclick = async () => {
+  if (busy && !rec) return;
+  if (rec) { clearInterval(tick); const r = rec; rec = null; await r.cancel(); $("micBtn").classList.remove("rec"); }
+  finish();
+};
 $("micBtn").onclick = () => (rec ? stopAnswer() : (pending ? startAnswer() : nextTurn()));
-$("sendTyped").onclick = () => {
+async function dropMic() {
+  if (!rec) return;
+  clearInterval(tick);
+  const r = rec; rec = null;
+  $("micBtn").classList.remove("rec"); setLevel(0);
+  $("micLabel").textContent = "Typing instead. Tap the mic to speak again.";
+  await r.cancel();
+}
+$("typed").addEventListener("input", dropMic);
+$("sendTyped").onclick = async () => {
   const t = $("typed").value.trim();
-  if (!t || busy || !pending) return;
+  if (!t || !pending || (busy && !rec)) return;
+  await dropMic();
   $("typed").value = "";
   submitAnswer(t, Math.min(CFG.pressure[S.pressure] - 1, t.split(/\s+/).length / 2.2));
 };
 const inRoom = () => !$("room").hidden && !demoMode && document.activeElement.tagName !== "TEXTAREA";
-document.addEventListener("keydown", (e) => { if (e.code === "Space" && !e.repeat && inRoom()) { e.preventDefault(); startAnswer(); } });
-document.addEventListener("keyup", (e) => { if (e.code === "Space" && inRoom()) { e.preventDefault(); stopAnswer(); } });
+// Space = "I am done" while listening, or "start listening" if the mic is off.
+document.addEventListener("keydown", (e) => {
+  if (e.code !== "Space" || e.repeat || !inRoom()) return;
+  e.preventDefault();
+  rec ? stopAnswer() : startAnswer();
+});
+
+// ---------- going back ----------
+const LEAVE_MSG = "Leave this interview? Your answers so far will not be scored.";
+let leaving = false;
+$("backRoom").onclick = async () => {
+  if (!demoMode && S.history.length && !confirm(LEAVE_MSG)) return;
+  leaving = true;
+  const to = await leaveRoom();
+  if (history.state?.id === "room") history.back();   // pop the room entry, so browser Back keeps working
+  else { leaving = false; show(to); }
+};
+$("backReport").onclick = () => { stopVoices(); show(S.dossier ? "step-dossier" : "step-track"); };
+$("steps").addEventListener("click", async (e) => {
+  const id = e.target.dataset?.s;
+  if (!id || id === "room" || !e.target.classList.contains("done")) return;
+  if (id === "step-dossier" && !S?.dossier) return;
+  if (current === "room") {
+    if (!demoMode && S.history.length && !confirm(LEAVE_MSG)) return;
+    await leaveRoom();
+  }
+  stopVoices();
+  show(id);
+});
+history.replaceState({ id: "step-track" }, "");
+window.addEventListener("popstate", async (e) => {
+  let id = e.state?.id || "step-track";
+  if (id === "room") id = "step-dossier";           // never re-enter a finished or abandoned room
+  if (id === "step-dossier" && !S?.dossier) id = "step-track";
+  if (current === "room" && !leaving) {
+    if (!demoMode && S.history.length && !confirm(LEAVE_MSG)) { history.pushState({ id: "room" }, ""); return; }
+    await leaveRoom();
+  }
+  leaving = false;
+  stopVoices();
+  show(id, false);
+});
 $("consent").onchange = (e) => ($("cloneRec").disabled = !e.target.checked);
 $("cloneRec").onclick = cloneFlow;
 $("again").onclick = () => location.reload();
