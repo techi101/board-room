@@ -433,6 +433,7 @@ async function cloneFlow() {
 async function runDemo(which = "") {
   const base = `/static/demo/${which ? which + "/" : ""}`;
   const demo = await (await fetch(base + "demo.json")).json();
+  const cloned = document.querySelector("input[name=demoVoice]:checked")?.value === "clone";
   demoMode = true;
   const g = ++gen;
   S = { track: demo.track, lang: demo.lang, history: [] };
@@ -445,11 +446,11 @@ async function runDemo(which = "") {
   for (const [i, step] of demo.steps.entries()) {
     $("progressFill").style.width = `${((i + 1) / demo.steps.length) * 100}%`;
     const who = step.speaker === "candidate" ? null : step.speaker;
-    $("speaker").textContent = who ? memberOf(who).title : (demo.candidate_label || "Candidate");
+    $("speaker").textContent = who ? memberOf(who).title : (cloned && step.audio_clone ? demo.candidate_label : "Candidate");
     $("question").textContent = step.caption;
     $("you").textContent = step.speaker === "candidate" ? "Candidate is answering…" : "";
     highlight(who);
-    await playUrl(`/static/demo/${step.audio}`);
+    await playUrl(`/static/demo/${cloned && step.audio_clone ? step.audio_clone : step.audio}`);
     if (g !== gen) return;
     highlight(null);
     await new Promise((x) => setTimeout(x, 350));

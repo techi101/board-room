@@ -23,10 +23,7 @@ async def main(sub: str, emb_path: str, code: str):
         audio = await gnani.speak_cloned(step["caption"], emb, code, "mp3")
         name = f"c{i}.mp3"
         (out / name).write_bytes(audio)
-        old = out / Path(step["audio"]).name
-        if old.exists() and old.name != name:
-            old.unlink()
-        step["audio"] = (out / name).relative_to(BASE).as_posix()
+        step["audio_clone"] = (out / name).relative_to(BASE).as_posix()  # the Gnani-voice clip stays in "audio"
         n += 1
     data["candidate_label"] = LABEL
     (out / "demo.json").write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")

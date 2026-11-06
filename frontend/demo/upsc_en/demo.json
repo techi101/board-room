@@ -10,7 +10,8 @@
   {
    "speaker": "candidate",
    "caption": "Sir, during the floods I saw how the district administration ran the relief camps. As an engineer I can fix one machine, but in administration I can fix how a whole district works.",
-   "audio": "upsc_en/c1.mp3"
+   "audio": "upsc_en/s1.mp3",
+   "audio_clone": "upsc_en/c1.mp3"
   },
   {
    "speaker": "m1",
@@ -25,7 +26,8 @@
   {
    "speaker": "candidate",
    "caption": "First, inspect the embankments. Second, set up a village level warning system. And third, um, stock relief material in advance.",
-   "audio": "upsc_en/c4.mp3"
+   "audio": "upsc_en/s4.mp3",
+   "audio_clone": "upsc_en/c4.mp3"
   },
   {
    "speaker": "m4",
@@ -35,7 +37,8 @@
   {
    "speaker": "candidate",
    "caption": "Sir, I will politely refuse. Relief will be distributed by need, and I will put that decision on record in writing.",
-   "audio": "upsc_en/c6.mp3"
+   "audio": "upsc_en/s6.mp3",
+   "audio_clone": "upsc_en/c6.mp3"
   },
   {
    "speaker": "chair",
