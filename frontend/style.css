@@ -1,0 +1,48 @@
+:root { --bg:#f6f3ee; --ink:#1d1d1f; --muted:#666; --card:#fff; --accent:#7a1f1f; --line:#ddd; }
+@media (prefers-color-scheme: dark) { :root { --bg:#16151a; --ink:#eee; --muted:#aaa; --card:#222128; --accent:#e07a6a; --line:#333; } }
+* { box-sizing: border-box; }
+body { margin:0; padding:16px; font:16px/1.5 system-ui, "Noto Sans Devanagari", sans-serif; background:var(--bg); color:var(--ink); max-width:920px; margin-inline:auto; }
+h1 { margin:0; color:var(--accent); }
+.tag { margin:.2em 0; }
+.disclaimer, .hint, .status { color:var(--muted); font-size:.85rem; margin:.2em 0; }
+section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:16px; }
+form label { display:block; margin:.5em 0; }
+input, select, textarea { width:100%; padding:.5em; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); font:inherit; }
+.row { display:flex; gap:12px; } .row label { flex:1; }
+button { font:inherit; padding:.6em 1em; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer; }
+button.primary { background:var(--accent); color:#fff; border:none; }
+button:disabled { opacity:.5; cursor:not-allowed; }
+.board { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.member { text-align:center; padding:10px 4px; border:2px solid var(--line); border-radius:10px; font-size:.85rem; transition:.2s; }
+.member .face { font-size:2rem; }
+.member.speaking { border-color:var(--accent); transform:translateY(-3px); box-shadow:0 4px 12px #0002; }
+.caption { min-height:5em; margin:16px 0; } #speaker { font-weight:600; color:var(--accent); }
+#question { font-size:1.15rem; margin:.3em 0; }
+.answer { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.answer details, .answer .hint, .answer .you { flex-basis:100%; }
+#micBtn.rec { background:#c62828; }
+.you { color:var(--muted); font-style:italic; }
+.score { display:inline-block; margin:4px 8px 4px 0; padding:4px 10px; border-radius:20px; background:var(--bg); border:1px solid var(--line); }
+.qa { border-top:1px solid var(--line); padding:10px 0; }
+.qa .better { background:var(--bg); padding:8px; border-radius:8px; }
+.clone { margin:16px 0; padding:12px; border:1px dashed var(--line); border-radius:10px; }
+.ai-label { font-size:.75rem; background:#555; color:#fff; padding:1px 6px; border-radius:4px; margin-left:6px; }
+@media (max-width:600px) { .board { grid-template-columns:repeat(3,1fr) !important; } .row { flex-direction:column; gap:0; } }
+.between { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+.tracks { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; }
+.track { display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; padding:12px; background:var(--bg); }
+.track:hover { border-color:var(--accent); }
+.track .ico { font-size:1.6rem; }
+.muted { color:var(--muted); font-size:.85rem; }
+.warn { color:#c62828; }
+label.check { display:flex; gap:8px; align-items:center; } label.check input { width:auto; }
+#dossier ul { margin:.3em 0 .8em; padding-left:1.2em; } #dossier h4 { margin:.6em 0 .2em; }
+code { background:var(--bg); padding:1px 5px; border-radius:4px; font-size:.85em; }
+.overall { font-size:1.1rem; } .overall b { font-size:1.6rem; color:var(--accent); margin-right:6px; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.bar { display:grid; grid-template-columns:140px 1fr 50px; align-items:center; gap:8px; margin:4px 0; font-size:.9rem; text-transform:capitalize; }
+.bar i { display:block; height:10px; border-radius:5px; background:var(--accent); }
+.delivery { background:var(--bg); border-radius:10px; padding:8px 12px; }
+.board { grid-template-columns:repeat(5,1fr); }
+@media (max-width:600px) { .grid2 { grid-template-columns:1fr; } .bar { grid-template-columns:110px 1fr 44px; } }
+@media print { header .status, button, #clone, #step-track { display:none !important; } section { border:none; } }

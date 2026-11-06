@@ -1,0 +1,5 @@
+.env
+backend/tts_cache
+tests
+tools
+__pycache__

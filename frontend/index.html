@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Board Room</title>
+  <meta name="description" content="Face a real interview panel by voice, in Hindi or English. UPSC board, software placements, CA, MBA, bank PO and any role. Built on Gnani Prisma and Timbre." />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Board Room</h1>
+    <p class="tag">Sit in front of a real-sounding interview panel and answer out loud, in Hindi or English. The panel reads your resume, your GitHub and your target role.</p>
+    <p class="disclaimer">Practice tool. Not affiliated with UPSC, any recruiter or any government body. Voices: Gnani Timbre · Listening: Gnani Prisma.</p>
+    <p id="status" class="status"></p>
+  </header>
+
+  <!-- 1. Track -->
+  <section id="step-track">
+    <div class="between"><h2>1. Which interview are you preparing for?</h2><button id="demoBtn">▶ Watch a 1-minute demo</button></div>
+    <div id="tracks" class="tracks"></div>
+  </section>
+
+  <!-- 2. Intake -->
+  <section id="step-intake" hidden>
+    <h2>2. Tell the panel about you</h2>
+    <p class="hint">Everything is used only for this interview and is not stored.</p>
+    <form id="intake">
+      <div id="trackFields"></div>
+      <label>Resume (PDF, optional) <input type="file" name="resume" accept="application/pdf" /></label>
+      <details><summary>…or paste resume text</summary><textarea name="resume_text" rows="5"></textarea></details>
+      <label id="ghWrap">GitHub repo or profile (optional) <input name="github_url" placeholder="github.com/you/your-project" /></label>
+      <label id="jdWrap">Job description or target role (optional) <textarea name="jd" rows="3" placeholder="Paste the JD, or just write e.g. 'SDE intern at a fintech startup'"></textarea></label>
+      <div class="row">
+        <label>Language <select name="lang" id="langSel"></select></label>
+        <label>Length <select name="plan" id="planSel"></select></label>
+        <label>Panel mood
+          <select name="pressure"><option value="friendly">Friendly</option><option value="standard" selected>Standard</option><option value="stress">Stress interview</option></select>
+        </label>
+      </div>
+      <label class="check"><input type="checkbox" name="browserVoice" /> Save credits: use my browser's voice instead of Gnani voices</label>
+      <div class="between"><button type="button" id="back1">← Back</button><button type="submit" class="primary" id="prepBtn">Brief the panel</button></div>
+    </form>
+  </section>
+
+  <!-- 3. Dossier -->
+  <section id="step-dossier" hidden>
+    <h2>3. What the panel knows about you</h2>
+    <p class="hint">Check this. The panel can only ask personal questions from what is here.</p>
+    <div id="dossier"></div>
+    <div class="between"><button id="back2">← Edit</button><button id="startBtn" class="primary">Enter the room</button></div>
+  </section>
+
+  <!-- 4. Room -->
+  <section id="room" hidden>
+    <div class="between"><span id="progress" class="hint"></span><button id="endBtn">End interview</button></div>
+    <div id="board" class="board"></div>
+    <div class="caption"><span id="speaker"></span><p id="question"></p></div>
+    <div class="answer">
+      <button id="micBtn" class="primary">Hold SPACE or click to answer</button>
+      <span id="timer">0s</span>
+      <p class="hint">The panel cuts you off after <span id="limit"></span> s, like a real one (rule-based).</p>
+      <details id="typeBox"><summary>Type instead</summary>
+        <textarea id="typed" rows="3"></textarea><button id="sendTyped">Send answer</button>
+      </details>
+      <p id="you" class="you"></p>
+    </div>
+  </section>
+
+  <!-- 5. Report -->
+  <section id="report" hidden>
+    <div class="between"><h2>Panel feedback</h2><button onclick="window.print()">Save as PDF</button></div>
+    <div id="reportBody"></div>
+    <div id="clone" class="clone">
+      <h3>Hear your better answers in your own voice</h3>
+      <p>Optional. Read the paragraph below aloud for 20 seconds. Your voice is used only in this session to replay
+        <b>your own points</b>, restructured. Nothing new is added. The audio is labelled "AI voice" and is not stored.</p>
+      <blockquote id="cloneScript"></blockquote>
+      <label class="check"><input type="checkbox" id="consent" /> This is my own voice and I agree to it being cloned for this session only.</label>
+      <button id="cloneRec" disabled>Record 20 s</button>
+      <div id="cloneOut"></div>
+    </div>
+    <button id="again" class="primary">New interview</button>
+  </section>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

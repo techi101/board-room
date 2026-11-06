@@ -1,0 +1,6 @@
+.env
+__pycache__/
+backend/tts_cache/
+.venv/
+.vercel/
+.pytest_cache/
