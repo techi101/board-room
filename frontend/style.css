@@ -248,3 +248,22 @@ body.in-room .foot { color: #5d5649; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 .room.demo .answer > :not(.you) { display: none; }
+
+/* ---------- camera ---------- */
+.camcheck { display: grid; grid-template-columns: 1fr 220px; gap: 24px; align-items: center; margin-top: 24px; padding: 22px 24px;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+.camcheck h3 { font-size: 1.15rem; margin-bottom: 6px; } .camcheck h3 em { font-family: var(--sans); font-style: normal; font-size: .78rem; color: var(--muted); font-weight: 400; margin-left: 6px; }
+.camcheck p { margin: 0 0 12px; color: var(--ink-2); font-size: .92rem; }
+.cam-preview { width: 220px; aspect-ratio: 4/3; object-fit: cover; border-radius: 12px; transform: scaleX(-1); background: #000; }
+.rec-dot { font-size: .7rem; letter-spacing: .12em; color: #ff8a7a; display: inline-flex; align-items: center; gap: 6px; }
+.rec-dot::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ff5a47; animation: pulse 1.4s infinite; }
+.replay { margin: 0 0 36px; }
+.replay-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 14px; }
+.replay h3 { font-size: 1.3rem; }
+.replay video { width: 100%; border-radius: var(--radius); background: #000; aspect-ratio: 4/3; max-height: 520px; }
+.chapters { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 10px; }
+.chip-btn { border: 1px solid var(--line); background: var(--card); border-radius: 99px; padding: 8px 14px; cursor: pointer; font-size: .85rem; min-height: 40px; }
+.chip-btn:hover { border-color: var(--ink); }
+.chip-btn b { color: var(--brass); margin-right: 4px; } .chip-btn span { color: var(--muted); margin-left: 6px; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .camcheck { grid-template-columns: 1fr; } .cam-preview { width: 100%; } }
+@media print { .replay { display: none; } }

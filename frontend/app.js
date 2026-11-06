@@ -1,4 +1,7 @@
 import { WavRecorder } from "./recorder.js";
+import { InterviewCamera } from "./camera.js";
+
+const cam = new InterviewCamera();
 
 const $ = (id) => document.getElementById(id);
 const ORDER = ["step-track", "step-intake", "step-dossier", "room", "report"];
@@ -125,7 +128,7 @@ function meter(audio) {
     analyser = analyser || Object.assign(actx.createAnalyser(), { fftSize: 512 });
     levelBuf = levelBuf || new Uint8Array(analyser.fftSize);
     src.connect(analyser);
-    analyser.connect(actx.destination);
+    if (!analyser._wired) { analyser.connect(actx.destination); analyser._wired = true; }
     const loop = () => {
       if (audio.ended || audio.paused) return setLevel(0);
       analyser.getByteTimeDomainData(levelBuf);
@@ -179,7 +182,19 @@ async function post(url, body) {
   return r.json();
 }
 
+function ensureAudio() {
+  actx = actx || new AudioContext();
+  analyser = analyser || Object.assign(actx.createAnalyser(), { fftSize: 512 });
+  if (actx.state === "suspended") actx.resume();
+}
+
 function startInterview() {
+  if (cam.on) {
+    ensureAudio();
+    cam.start(actx, analyser);
+    $("camPreview").hidden = true;
+    $("recDot").hidden = false;
+  }
   $("limit").textContent = CFG.pressure[S.pressure];
   if (!CFG.gnani) $("typeBox").open = true;
   show("room");
@@ -207,6 +222,7 @@ async function nextTurn() {
   const n = data.next;
   if (n.done) return finish();
   pending = { speaker: n.speaker, question: strip(n.text) };
+  cam.mark(`Q${n.index + 1} · ${LABELS[n.qtype] || ""}`);
   $("progress").textContent = `${n.index + 1} / ${n.total} · ${LABELS[n.qtype] || ""}`;
   $("progressFill").style.width = `${((n.index + 1) / n.total) * 100}%`;
   $("speaker").textContent = n.title;
@@ -268,7 +284,10 @@ function submitAnswer(text, seconds) {
 
 async function finish() {
   highlight(null);
+  $("recDot").hidden = true;
+  const video = await cam.stop();
   show("report");
+  showReplay(video);
   $("cloneScript").textContent = CLONE_SCRIPT[S.lang];
   $("reportBody").innerHTML = "<p>The panel is discussing your interview…</p>";
   try { S.report = await post("/api/report", S); renderReport(S.report); }
@@ -301,6 +320,21 @@ function renderReport(R) {
     ${block("Prepare these before the real interview", R.prepare_next)}
     <div class="report-block"><h4>Question by question</h4>${qs}</div>`;
   $("clone").hidden = !CFG.gnani || !(R.answers || []).some((a) => a.better);
+}
+
+function showReplay(v) {
+  $("replay").hidden = !v;
+  if (!v) return;
+  const el = $("replayVideo");
+  el.src = v.url;
+  $("replayDownload").href = v.url;
+  $("replayDownload").download = `board-room-interview.${v.type.includes("mp4") ? "mp4" : "webm"}`;
+  $("chapters").innerHTML = v.marks.map((m, i) =>
+    `<button class="chip-btn" data-i="${i}"><b>${esc(m.label.split(" · ")[0])}</b> ${esc(m.label.split(" · ")[1] || "")} <span>${clock(Math.floor(m.t))}</span></button>`).join("");
+  $("chapters").querySelectorAll("button").forEach((b) => (b.onclick = () => {
+    el.currentTime = v.marks[b.dataset.i].t;
+    el.play().catch(() => {});
+  }));
 }
 
 async function cloneFlow() {
@@ -362,7 +396,23 @@ async function runDemo() {
 }
 
 $("back1").onclick = () => show("step-track");
-$("back2").onclick = () => show("step-intake");
+$("back2").onclick = () => { cam.disable($("camPreview")); $("camToggle").checked = false; $("camPreview").hidden = true; show("step-intake"); };
+$("camToggle").onchange = async (e) => {
+  if (e.target.checked) {
+    try {
+      await cam.enable($("camPreview"));
+      $("camPreview").hidden = false;
+      $("camMsg").textContent = "Camera on. Frame your face and shoulders, with light in front of you.";
+    } catch {
+      e.target.checked = false;
+      $("camMsg").textContent = "Camera not available or permission denied. You can still do the interview without it.";
+    }
+  } else {
+    cam.disable($("camPreview"));
+    $("camPreview").hidden = true;
+    $("camMsg").textContent = "";
+  }
+};
 $("startBtn").onclick = startInterview;
 $("demoBtn").onclick = runDemo;
 $("endBtn").onclick = () => { if (!rec && !busy) finish(); };

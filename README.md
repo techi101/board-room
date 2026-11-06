@@ -30,7 +30,8 @@ I spent a year in UPSC coaching at Vajiram & Ravi in Delhi. Mock interviews were
 3. **Face the panel.** Each member has their own Gnani voice. Questions follow the real format: intro, motivation, resume claims, project deep-dive, **questions about a specific file in your repo**, fundamentals, DSA reasoning, scenarios, current affairs, cases. Members follow up when an answer is vague.
 4. **It feels like a room.** Members whisper to each other, sigh at one-line answers, and the chair cuts you off when you ramble (Gnani Timbre audio tags). Three moods: friendly, standard, stress interview.
 5. **Get feedback.** Scores on a track-specific rubric, a verdict and "what was missing" per question, 5 questions to prepare next, and how you spoke (pace, filler words, answer length). Save as PDF.
-6. **Hear yourself do better.** Optional: record 20 seconds, and your better-structured answers play back **in your own cloned voice**.
+6. **Watch yourself.** Optional camera recording of the whole interview (your video, your voice and the panel's voices). The camera is hidden while you answer; afterwards the report has a player with Q1, Q2... chapter buttons so you can check eye contact, expressions and posture. The video never leaves your browser; you can download it.
+7. **Hear yourself do better.** Optional: record 20 seconds, and your better-structured answers play back **in your own cloned voice**.
 
 ## How it works
 ```
@@ -57,7 +58,7 @@ FastAPI (stateless; the browser holds the session) on Vercel
 - when any budget is hit, the app falls back to browser voice + typing instead of breaking.
 
 ## Privacy
-Resume, repo contents and voice are used only for the live session and are not stored on the server.
+Resume, repo contents and voice are used only for the live session and are not stored on the server. The camera recording is made and kept inside the browser tab (MediaRecorder); it is never uploaded.
 
 ## Run locally
 ```bash

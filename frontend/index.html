@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Noto+Serif+Devanagari:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%231d1e1d%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%227%22 fill=%22none%22 stroke=%22%23fe9e60%22 stroke-width=%223%22/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
@@ -77,6 +78,15 @@
       <h2 class="page-title">What the panel knows about you</h2>
       <p class="sub">Check it. The panel can only ask personal questions from what is written here.</p>
       <article id="dossier" class="dossier"></article>
+      <div class="camcheck">
+        <div>
+          <h3>Record yourself <em>optional</em></h3>
+          <p>Watch your expressions, eye contact and body language afterwards. The camera is hidden while you answer, so it will not distract you. The video stays on this device and is never uploaded.</p>
+          <label class="switch"><input type="checkbox" id="camToggle" /><span></span>Record my interview on camera</label>
+          <p id="camMsg" class="muted"></p>
+        </div>
+        <video id="camPreview" class="cam-preview" playsinline muted hidden></video>
+      </div>
       <div class="actions"><button id="back2" class="btn text">← Edit details</button><button id="startBtn" class="btn primary">Enter the room</button></div>
     </section>
   </main>
@@ -84,6 +94,7 @@
   <!-- 4. Room -->
   <section id="room" class="room" hidden>
     <div class="room-top">
+      <span id="recDot" class="rec-dot" hidden>REC</span>
       <span id="progress"></span>
       <div class="progress-bar"><i id="progressFill"></i></div>
       <button id="endBtn" class="btn text light">End interview</button>
@@ -107,6 +118,13 @@
   <!-- 5. Report -->
   <section id="report" class="page narrow" hidden>
     <div class="report-head"><div><p class="eyebrow">Panel feedback</p><h2 class="page-title">How it went</h2></div><button onclick="window.print()" class="btn ghost small">Save as PDF</button></div>
+    <div id="replay" class="replay" hidden>
+      <div class="replay-head"><div><p class="eyebrow">Watch yourself</p><h3>Your interview, as the panel saw it</h3></div>
+        <a id="replayDownload" class="btn ghost small" download>Download video</a></div>
+      <video id="replayVideo" controls playsinline></video>
+      <div id="chapters" class="chapters"></div>
+      <p class="muted">Look for: eye contact when you start an answer, hands, posture when a member interrupts, and whether your face matches what you are saying. This video exists only in this browser tab.</p>
+    </div>
     <div id="reportBody"></div>
     <div id="clone" class="clone">
       <p class="eyebrow">Optional</p>
