@@ -159,7 +159,7 @@ async function speak(text, speaker) {
     await playBlob(await r.blob());
   } catch (e) {
     if (!S.browserVoice) console.warn("Gnani voice unavailable, using browser voice:", e.message);
-    await browserSpeak(strip(text));
+    await browserSpeak(sayPaths(strip(text)));
   }
   highlight(null);
 }
@@ -174,6 +174,18 @@ function playUrl(url) {
     meter(a);
     a.play().catch(res);
   });
+}
+// Same idea as backend board.spoken(): read "api/index.js" as words, not "slash".
+function sayPaths(t) {
+  return t.replace(/https?:\/\/\S+/g, "the link")
+    .replace(/(?<![\w\/.-])\/?[\w.-]*[A-Za-z][\w.-]*(?:\/[\w.-]*)*/g, (p) => {
+      if (!p.includes("/")) return p;
+      const tail = p.match(/\.*$/)[0]; p = p.slice(0, p.length - tail.length);
+      if (/^[a-z]+\/[a-z]+$/i.test(p) && !/\.\w+$/.test(p)) return p; // and/or
+      const parts = p.split("/").filter(Boolean);
+      const f = parts.pop().replace(/\.(\w+)$/, " dot $1");
+      return (parts.length ? `${f} in the ${parts.pop()} folder` : `the ${f} folder`) + tail;
+    });
 }
 function browserSpeak(text) {
   return new Promise((res) => {

@@ -73,11 +73,53 @@ def delivery(lang: str, history: list[dict]) -> dict:
     }
 
 
+# Raw paths like "api/index.js" or "/tmp" are read out as "slash ..." by TTS. Rewrite them as words before speaking.
+_TOKEN_RE = re.compile(r"(?<![\w/.\-])/?[\w.\-]+(?:/[\w.\-]*)*")
+_EXT_RE = re.compile(r"\.(py|js|jsx|ts|tsx|json|md|txt|html|css|java|cpp|c|h|go|rs|rb|php|yml|yaml|toml|sql|sh|ipynb|kt|swift|dart|vue|env)$", re.I)
+_URL_RE = re.compile(r"https?://\S+")
+
+
+def _say_file(name: str) -> str:
+    return _EXT_RE.sub(lambda m: " dot " + m.group(1), name).replace("_", " ")
+
+
+def _is_path(tok: str) -> bool:
+    if not re.search(r"[A-Za-z]", tok):
+        return False  # 5/10, 50/50
+    if "/" in tok:  # api/index.js, /tmp, src/utils/ (but not and/or)
+        return tok.startswith("/") or tok.endswith("/") or bool(_EXT_RE.search(tok)) or tok.count("/") >= 2
+    return bool(_EXT_RE.search(tok))
+
+
+def spoken(text: str, lang: str = "en") -> str:
+    """Text to send to TTS: file paths become words. The on-screen caption keeps the original."""
+    text = _URL_RE.sub("the link" if lang == "en" else "लिंक", text)
+
+    def fix(m):
+        tok = m.group(0).rstrip(".")
+        tail = m.group(0)[len(tok):]
+        if not _is_path(tok):
+            return m.group(0)
+        parts = [x for x in tok.strip("/").split("/") if x]
+        if not parts:
+            return m.group(0)
+        if len(parts) == 1:
+            if "/" in tok and not _EXT_RE.search(tok):  # /tmp, utils/
+                return (f"{parts[0]} फ़ोल्डर" if lang == "hi" else f"the {parts[0]} folder") + tail
+            return _say_file(parts[0]) + tail
+        f, folder = _say_file(parts[-1]), parts[-2].replace("_", " ")
+        if lang == "hi":
+            return f"{folder} फ़ोल्डर की {f} फ़ाइल" + tail
+        return f"{f} in the {folder} folder" + tail
+    return _TOKEN_RE.sub(fix, text)
+
+
 SYSTEM_TURN = """You are one member of a realistic interview panel in India. {format}
 You write ONLY what this one panel member says next. Rules:
 - Speak only in {lang_name}. Under 50 words. One question at a time. Sound like a human interviewer, not a quiz.
 - Tone: {style}
 - Personal questions may use ONLY facts in the candidate dossier. Never invent their projects, files, jobs or numbers.
+- You are speaking out loud. Name a file the way a person says it ("the index file in your api folder"), never as a raw path with slashes.
 - If the previous answer was vague, one-sided or shaky AND it was this member's area, you may ask a pointed follow-up instead of the planned question type.
 - Do not repeat a question already asked. Never mention being an AI. Never say "UPSC" or "Commission".
 - You may begin with at most one tag from: <pauses>, <clears throat>, <slow>. No other tags.

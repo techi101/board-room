@@ -15,12 +15,12 @@
   },
   {
    "speaker": "lead",
-   "caption": "I opened your repo. In api slash index dot js, the database path points to slash tmp. On Vercel, what happens to that file when the function goes cold?",
+   "caption": "I opened your repo. In your api folder, index.js points the database to the tmp folder. On Vercel, what happens to that file when the function goes cold?",
    "audio": "software_en/s2.mp3"
   },
   {
    "speaker": "candidate",
-   "caption": "Um, it gets wiped. Slash tmp only lives as long as that instance, so the flags could reset. For a demo that was fine, but in production I would move it to a hosted database like Postgres.",
+   "caption": "Um, it gets wiped. The tmp folder only lives as long as that instance, so the flags could reset. For a demo that was fine, but in production I would move it to a hosted database like Postgres.",
    "audio": "software_en/s3.mp3",
    "audio_clone": "software_en/c3.mp3"
   },
@@ -66,8 +66,8 @@
   },
   {
    "speaker": "lead",
-   "question": "I opened your repo. In api slash index dot js, the database path points to slash tmp. On Vercel, what happens to that file when the function goes cold?",
-   "answer": "Um, it gets wiped. Slash tmp only lives as long as that instance, so the flags could reset. For a demo that was fine, but in production I would move it to a hosted database like Postgres.",
+   "question": "I opened your repo. In your api folder, index.js points the database to the tmp folder. On Vercel, what happens to that file when the function goes cold?",
+   "answer": "Um, it gets wiped. The tmp folder only lives as long as that instance, so the flags could reset. For a demo that was fine, but in production I would move it to a hosted database like Postgres.",
    "seconds": 18
   },
   {

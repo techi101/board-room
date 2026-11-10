@@ -137,12 +137,13 @@ async def tts(req: TTSRequest, request: Request):
     if gnani.api_key() is None:
         raise HTTPException(503, "no-gnani-key")
     lang = board.LANG[req.lang]["tts"]
-    if not gnani.cached(req.text, req.voice, lang):  # cached audio is free
+    text = board.spoken(req.text, req.lang)
+    if not gnani.cached(text, req.voice, lang):  # cached audio is free
         guard(request, "tts")
-        if not limits.spend_tts(len(TAG_RE.sub("", req.text))):
+        if not limits.spend_tts(len(TAG_RE.sub("", text))):
             raise HTTPException(429, "daily voice budget used up")
     try:
-        audio = await gnani.speak(req.text, req.voice, lang)
+        audio = await gnani.speak(text, req.voice, lang)
     except gnani.GnaniError as e:
         raise HTTPException(e.status, str(e))
     return Response(audio, media_type="audio/mpeg")

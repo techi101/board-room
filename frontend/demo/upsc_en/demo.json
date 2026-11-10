@@ -4,7 +4,7 @@
  "steps": [
   {
    "speaker": "chair",
-   "caption": "Good morning, please sit down. Your DAF says you are from Muzaffarpur and an engineer. Why leave engineering for administration?",
+   "caption": "Good morning, please sit down. Your DAF says you are from Allahabad and an engineer. Why leave engineering for administration?",
    "audio": "upsc_en/s0.mp3"
   },
   {
@@ -49,7 +49,7 @@
  "history": [
   {
    "speaker": "chair",
-   "question": "Good morning, please sit down. Your DAF says you are from Muzaffarpur and an engineer. Why leave engineering for administration?",
+   "question": "Good morning, please sit down. Your DAF says you are from Allahabad and an engineer. Why leave engineering for administration?",
    "answer": "Sir, during the floods I saw how the district administration ran the relief camps. As an engineer I can fix one machine, but in administration I can fix how a whole district works.",
    "seconds": 18
   },
@@ -78,7 +78,7 @@
    "filler_total": 1
   },
   "overall": 7,
-  "summary": "The candidate demonstrates a strong sense of purpose and clear communication. The answers are grounded in the local context of Bihar, which is a positive. However, the response to the political pressure question needs more nuance regarding stakeholder management, and the flood management answer lacked technical depth expected from an engineer.",
+  "summary": "The candidate demonstrates a strong sense of purpose and clear communication. The answers are grounded in the local context of Uttar Pradesh, which is a positive. However, the response to the political pressure question needs more nuance regarding stakeholder management, and the flood management answer lacked technical depth expected from an engineer.",
   "scores": {
    "clarity": 8,
    "honesty": 9,
@@ -112,11 +112,11 @@
    "Maintain a calm, diplomatic tone even when discussing conflicts of interest."
   ],
   "prepare_next": [
-   "What are the specific geographical and socio-economic challenges unique to Muzaffarpur?",
+   "What are the specific geographical and socio-economic challenges unique to Allahabad?",
    "How would you handle a situation where a superior officer gives an order that conflicts with your ethical judgment?",
-   "Explain the 'Bihar Disaster Management Policy' and the role of the District Magistrate under the Disaster Management Act, 2005.",
-   "How can technology be leveraged to improve public service delivery in rural Bihar?",
-   "Discuss the 'Litchi' economy of Muzaffarpur and how you would improve the supply chain as an administrator."
+   "Explain the 'Uttar Pradesh State Disaster Management Plan' and the role of the District Magistrate under the Disaster Management Act, 2005.",
+   "How can technology be leveraged to improve public service delivery in rural Uttar Pradesh?",
+   "How would you manage crowds, sanitation and safety at the Magh Mela in Allahabad as an administrator?"
   ]
  },
  "candidate_label": "Candidate · AI clone of the builder's voice"
