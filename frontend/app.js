@@ -56,13 +56,29 @@ const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 const strip = (t) => t.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+// One colour tile + line icon per track (paths in the style of Lucide icons).
+const TRACK_ICONS = {
+  upsc: ["indigo", '<path d="M3 21h18M5 21V10M19 21V10M9 21v-7M15 21v-7M2 10l10-6 10 6"/>'],
+  software: ["blue", '<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>'],
+  core: ["teal", '<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/>'],
+  ca: ["amber", '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h8"/>'],
+  mba: ["rose", '<path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>'],
+  bank: ["green", '<path d="M6 3h12M6 8h12M14.5 21 6 13h3c6.67 0 6.67-10 0-10"/>'],
+  consulting: ["violet", '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>'],
+  custom: ["slate", '<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M9 13h6M9 17h4"/>'],
+};
+
 async function init() {
   CFG = await (await fetch("/api/status")).json();
   $("status").textContent = `Gnani voices ${CFG.gnani ? "on" : "off: browser voice and typing"} · Panel ${CFG.llm ? "live" : "offline: fixed questions"}`;
-  $("tracks").innerHTML = Object.entries(CFG.tracks).map(([k, t], i) =>
-    `<button class="track${i === 0 ? " feature" : ""}" data-k="${k}"><span class="num">${String(i + 1).padStart(2, "0")}</span>
+  $("tracks").innerHTML = Object.entries(CFG.tracks).map(([k, t]) => {
+    const [tone, path] = TRACK_ICONS[k] || TRACK_ICONS.custom;
+    return `<button class="track" data-k="${k}">
+      <span class="t-icon t-${tone}" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${path}</svg></span>
       <span class="name">${esc(t.name)}</span><span class="tag">${esc(t.tag)}</span>
-      <span class="panel">${t.panel.map((m) => esc(m.title)).join(" · ")}</span><span class="arrow" aria-hidden="true">→</span></button>`).join("");
+      <span class="panel"><b>${t.panel.length} panelists</b> · ${t.panel.map((m) => esc(m.title)).join(", ")}</span>
+      <span class="arrow" aria-hidden="true">Start →</span></button>`;
+  }).join("");
   document.querySelectorAll(".track").forEach((b) => (b.onclick = () => pickTrack(b.dataset.k)));
 }
 
