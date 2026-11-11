@@ -9,15 +9,24 @@ let current = "step-track";
 const show = (id, push = true) => {
   if (push && id !== current) history.pushState({ id }, "");
   current = id;
+  if (id === "room") hasReport = false;            // a new interview replaces the old report
+  if (id === "report") hasReport = true;
   ORDER.forEach((s) => ($(s).hidden = s !== id));
   document.body.classList.toggle("in-room", id === "room");
-  const at = ORDER.indexOf(id);
-  document.querySelectorAll("#steps i").forEach((el) => {
-    const i = ORDER.indexOf(el.dataset.s);
-    el.className = i === at ? "on" : i < at ? "done" : "";
-  });
+  paintSteps();
   window.scrollTo({ top: 0 });
 };
+let hasReport = false;
+// A step is clickable whenever its data exists, not only when it lies behind the current step.
+const canOpen = (s) => s === "step-track" || (s === "step-intake" && !!TRACK)
+  || (s === "step-dossier" && !!S?.dossier) || (s === "report" && hasReport);
+function paintSteps() {
+  const at = ORDER.indexOf(current);
+  document.querySelectorAll("#steps i").forEach((el) => {
+    const s = el.dataset.s, i = ORDER.indexOf(s);
+    el.className = s === current ? "on" : [i < at ? "done" : "", s !== "room" && canOpen(s) ? "go" : ""].join(" ").trim();
+  });
+}
 const initials = (t) => t.replace(/\(.*?\)/g, "").split(/\s+/).filter(Boolean).map((w) => (/\d/.test(w) ? w : w[0])).join("").slice(0, 2).toUpperCase();
 const FIELD_DEFS = {
   home: ["Home state and district", "e.g. Bihar, Muzaffarpur"],
@@ -538,8 +547,7 @@ $("backRoom").onclick = async () => {
 $("backReport").onclick = () => { stopVoices(); show(S.dossier ? "step-dossier" : "step-track"); };
 $("steps").addEventListener("click", async (e) => {
   const id = e.target.dataset?.s;
-  if (!id || id === "room" || !e.target.classList.contains("done")) return;
-  if (id === "step-dossier" && !S?.dossier) return;
+  if (!id || id === "room" || id === current || !canOpen(id)) return;
   if (current === "room") {
     if (!demoMode && S.history.length && !confirm(LEAVE_MSG)) return;
     await leaveRoom();

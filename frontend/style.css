@@ -269,8 +269,8 @@ body.in-room .foot { color: #5d5649; }
 @media print { .replay { display: none; } }
 
 /* ---------- back navigation ---------- */
-.steps i.done { cursor: pointer; }
-.steps i.done:hover { text-decoration: underline; text-underline-offset: 3px; }
+.steps i.go { cursor: pointer; color: var(--ink-2); }
+.steps i.go:hover { text-decoration: underline; text-underline-offset: 3px; }
 #backRoom { margin-right: 4px; }
 
 /* ---------- demo picker ---------- */
