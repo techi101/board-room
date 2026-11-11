@@ -76,7 +76,7 @@ async function init() {
     return `<button class="track" data-k="${k}">
       <span class="t-icon t-${tone}" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${path}</svg></span>
       <span class="name">${esc(t.name)}</span><span class="tag">${esc(t.tag)}</span>
-      <span class="panel"><b>${t.panel.length} panelists</b> · ${t.panel.map((m) => esc(m.title)).join(", ")}</span>
+      <span class="panel"><span class="stack sm" aria-hidden="true">${t.panel.map((_, j) => `<img src="/static/avatars/p${(j % 7) + 1}.svg" alt="" />`).join("")}</span><span><b>${t.panel.length} panelists</b> · ${t.panel.map((m) => esc(m.title)).join(", ")}</span></span>
       <span class="arrow" aria-hidden="true">Start →</span></button>`;
   }).join("");
   document.querySelectorAll(".track").forEach((b) => (b.onclick = () => pickTrack(b.dataset.k)));
@@ -144,8 +144,8 @@ function renderDossier(d) {
 }
 
 function renderBoard() {
-  $("board").innerHTML = CFG.tracks[S.track].panel.map((m) =>
-    `<div class="seat" id="mem-${m.id}"><div class="avatar" aria-hidden="true">${esc(initials(m.title))}</div><div class="plate">${esc(m.title)}</div></div>`).join("");
+  $("board").innerHTML = CFG.tracks[S.track].panel.map((m, i) =>
+    `<div class="seat" id="mem-${m.id}"><div class="avatar" aria-hidden="true"><img src="/static/avatars/p${(i % 7) + 1}.svg" alt="" /></div><div class="plate">${esc(m.title)}</div></div>`).join("");
 }
 const memberOf = (id) => CFG.tracks[S.track].panel.find((m) => m.id === id);
 const highlight = (id) => document.querySelectorAll(".seat").forEach((el) => el.classList.toggle("speaking", el.id === `mem-${id}`));

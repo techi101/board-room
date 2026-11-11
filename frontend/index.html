@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Board Room</title>
+  <title>Board Room · Face the interview panel before the real one</title>
   <meta name="description" content="Face a real interview panel by voice, in Hindi or English. Civil services board, software placements, CA, MBA, bank PO and any role. Built on Gnani Prisma and Timbre." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%234f46e5%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%227%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-width=%223%22/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="/static/style.css?v=3" />
+  <link rel="stylesheet" href="/static/style.css?v=5" />
 </head>
 <body>
   <a href="#main" class="skip">Skip to content</a>
@@ -24,45 +24,53 @@
     <section id="step-track" class="page home">
       <div class="hero">
         <div class="hero-copy">
-          <p class="pill"><span class="pill-dot"></span>Voice mock interviews · Hindi and English</p>
-          <h1>Practise the interview,<br /><span class="hl">not just the answers.</span></h1>
-          <p class="lede">A panel that reads your resume and GitHub code, asks you questions out loud, interrupts when you ramble, and shows exactly what was missing in each answer.</p>
+          <p class="pill"><span class="live-dot"></span>Live voice panel · Hindi and English</p>
+          <h1>Face your <span class="rot-wrap"><span class="rot" id="rot">UPSC board</span></span><br />before the real one.</h1>
+          <p class="lede">Board Room puts you in front of a panel that has read your resume and your GitHub code. They ask out loud, follow up when you're vague, cut in when you ramble, and tell you exactly what was missing.</p>
           <div class="cta">
-            <a href="#tracks-anchor" class="btn primary lg">Start a mock interview <span aria-hidden="true">→</span></a>
+            <a href="#tracks-anchor" class="btn primary lg">Enter the room <span aria-hidden="true">→</span></a>
             <a href="#demos" class="btn ghost lg"><span class="play"></span>Watch a 1-min demo</a>
           </div>
-          <ul class="stats">
-            <li><b>8</b><span>interview tracks</span></li>
-            <li><b>2</b><span>languages</span></li>
-            <li><b>13</b><span>panel voices</span></li>
-            <li><b>0</b><span>sign-ups needed</span></li>
-          </ul>
+          <div class="trust">
+            <span class="stack" aria-hidden="true"><img src="/static/avatars/p1.svg" alt="" /><img src="/static/avatars/p2.svg" alt="" /><img src="/static/avatars/p3.svg" alt="" /><img src="/static/avatars/p4.svg" alt="" /></span>
+            <span><b>8 interview tracks</b> · 13 panel voices · no sign-up</span>
+          </div>
         </div>
-        <figure class="mock" aria-hidden="true">
-          <div class="mock-bar"><i></i><i></i><i></i><span>Software placement · Standard panel</span><em class="mock-rec">REC</em></div>
-          <div class="mock-panel">
-            <div class="mseat"><span class="av c1">HP</span><small>HR Partner</small></div>
-            <div class="mseat on"><span class="av c2">TL</span><small>Tech Lead</small></div>
-            <div class="mseat"><span class="av c3">SE</span><small>Senior Eng.</small></div>
-            <div class="mseat"><span class="av c4">EM</span><small>Eng. Manager</small></div>
+
+        <figure class="call" aria-hidden="true">
+          <div class="call-top">
+            <span class="rec"><i></i>REC 04:12</span>
+            <span class="qcount">Question 3 of 7</span>
+            <span class="call-title">Software placement · English</span>
           </div>
-          <div class="mock-q">
-            <p class="mock-who"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span>Tech Lead is asking</p>
-            <p>“I opened your repo. In your api folder, <code>index.js</code> points the database to the tmp folder. On Vercel, what happens to that file when the function goes cold?”</p>
+          <div class="grid">
+            <div class="tile on" data-tile="0"><img src="/static/avatars/p2.svg" alt="" /><span class="name">Tech Lead</span><span class="talk"><i></i><i></i><i></i><i></i></span></div>
+            <div class="tile" data-tile="1"><img src="/static/avatars/p1.svg" alt="" /><span class="name">HR Partner</span><span class="talk"><i></i><i></i><i></i><i></i></span></div>
+            <div class="tile" data-tile="2"><img src="/static/avatars/p3.svg" alt="" /><span class="name">Senior Engineer</span><span class="talk"><i></i><i></i><i></i><i></i></span></div>
+            <div class="tile you"><img src="/static/avatars/you.svg" alt="" /><span class="name">You</span><span class="mic-on">●</span></div>
           </div>
-          <div class="mock-mic"><span class="mic-dot"></span>Listening to your answer · 0:42</div>
-          <div class="mock-float">
-            <p class="mf-title">Feedback, per answer</p>
-            <p><span class="ok">✓</span>Verdict</p>
-            <p><span class="ok">✓</span>What was missing</p>
-            <p><span class="ok">✓</span>Your points, better structured</p>
+          <div class="caption"><b>Tech Lead</b><span id="capText">I opened your repo. In your api folder, index.js points the database to the tmp folder. On Vercel, what happens to that file when the function goes cold?</span></div>
+          <div class="controls">
+            <span class="ctl"><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg></span>
+            <span class="ctl"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></svg></span>
+            <span class="ctl lang">EN · हि</span>
+            <span class="ctl end"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85a1 1 0 0 1-1.41-.03L.29 13.08a1 1 0 0 1 0-1.41C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67a1 1 0 0 1 0 1.41l-2.48 2.46a1 1 0 0 1-1.41.03 11.3 11.3 0 0 0-2.66-1.85 1 1 0 0 1-.56-.9v-3.1A15 15 0 0 0 12 9Z"/></svg></span>
           </div>
+          <div class="float f1"><span class="f-ic t-green">✓</span><div><b>Panel briefed</b><small>Resume · GitHub · 6 key code files</small></div></div>
+          <div class="float f2"><span class="f-ic t-rose">⏱</span><div><b>Ramble, and the chair cuts in</b><small>Just like a real board</small></div></div>
         </figure>
+      </div>
+
+      <div class="marquee" aria-label="Interviews you can practise">
+        <div class="marquee-track">
+          <span>🏛️ UPSC / State PSC board</span><span>💻 Campus SDE placements</span><span>⚙️ PSU and core engineering</span><span>📊 CA articleship and Big 4</span><span>🎓 IIM / B-school PI</span><span>🏦 Bank PO and RBI Grade B</span><span>📈 Consulting cases</span><span>📝 Any job description</span>
+          <span aria-hidden="true">🏛️ UPSC / State PSC board</span><span aria-hidden="true">💻 Campus SDE placements</span><span aria-hidden="true">⚙️ PSU and core engineering</span><span aria-hidden="true">📊 CA articleship and Big 4</span><span aria-hidden="true">🎓 IIM / B-school PI</span><span aria-hidden="true">🏦 Bank PO and RBI Grade B</span><span aria-hidden="true">📈 Consulting cases</span><span aria-hidden="true">📝 Any job description</span>
+        </div>
       </div>
 
       <section class="band" id="demos" aria-labelledby="demosTitle">
         <div class="band-head">
-          <div><p class="eyebrow">See it first</p><h2 id="demosTitle">Watch a real interview, 1 minute each</h2>
+          <div><p class="eyebrow">Sit in on one</p><h2 id="demosTitle">Watch a real interview, 1 minute each</h2>
           <p class="sub">Pre-recorded with real Gnani voices. No sign-up, no microphone needed.</p></div>
           <fieldset class="voice-pick">
             <legend>Candidate's voice</legend>
@@ -71,9 +79,48 @@
           </fieldset>
         </div>
         <div class="demo-pick">
-          <button class="demo-btn" data-demo="software_en"><span class="demo-ic t-blue"><span class="play"></span></span><span class="demo-txt"><b>Software placement</b><small>Tech Lead asks about a file in the repo</small></span><span class="badge">English</span></button>
-          <button class="demo-btn" data-demo="upsc_en"><span class="demo-ic t-indigo"><span class="play"></span></span><span class="demo-txt"><b>Civil services board</b><small>Chairperson and 4 members</small></span><span class="badge">English</span></button>
-          <button class="demo-btn" data-demo=""><span class="demo-ic t-amber"><span class="play"></span></span><span class="demo-txt"><b>Civil services board</b><small>The full panel in Hindi</small></span><span class="badge hi">हिन्दी</span></button>
+          <button class="demo-btn" data-demo="software_en"><span class="demo-thumb"><img src="/static/avatars/p2.svg" alt="" /><span class="pbtn"><span class="play"></span></span></span><span class="demo-txt"><b>Software placement</b><small>The Tech Lead asks about a file in the candidate's repo</small><span class="badges"><span class="badge">English</span><span class="badge">~1 min</span></span></span></button>
+          <button class="demo-btn" data-demo="upsc_en"><span class="demo-thumb t2"><img src="/static/avatars/p1.svg" alt="" /><span class="pbtn"><span class="play"></span></span></span><span class="demo-txt"><b>Civil services board</b><small>A chairperson and four members, DAF-based questions</small><span class="badges"><span class="badge">English</span><span class="badge">~1 min</span></span></span></button>
+          <button class="demo-btn" data-demo=""><span class="demo-thumb t3"><img src="/static/avatars/p2.svg" alt="" /><span class="pbtn"><span class="play"></span></span></span><span class="demo-txt"><b>Civil services board</b><small>The same full panel, entirely in Hindi</small><span class="badges"><span class="badge hi">हिन्दी</span><span class="badge">~1 min</span></span></span></button>
+        </div>
+      </section>
+
+      <section class="bento" aria-labelledby="bentoTitle">
+        <p class="eyebrow center">Why it feels real</p>
+        <h2 id="bentoTitle" class="center">Not a chatbot. A panel.</h2>
+        <div class="bento-grid">
+          <article class="b-card b-code">
+            <h3>It reads your code</h3>
+            <p>The panel opens your repo and asks about a specific file, the way a tech lead would.</p>
+            <div class="b-vis">
+              <div class="tree"><span>📁 api</span><span class="hit">📄 index.js</span><span>📁 src</span><span>📄 README.md</span></div>
+              <div class="bubble"><img src="/static/avatars/p2.svg" alt="" />“On Vercel, what happens to that file when the function goes cold?”</div>
+            </div>
+          </article>
+          <article class="b-card b-room">
+            <h3>It behaves like a room</h3>
+            <p>Members whisper to each other, sigh at one-line answers, and the chair cuts in when you ramble.</p>
+            <div class="b-vis chat">
+              <div class="msg"><img src="/static/avatars/p3.svg" alt="" /><span><em>whispers</em>Good. He knows the limitation.</span></div>
+              <div class="msg"><img src="/static/avatars/p1.svg" alt="" /><span><em>clears throat</em>Let's come to the point.</span></div>
+            </div>
+          </article>
+          <article class="b-card b-lang">
+            <h3>हिन्दी or English</h3>
+            <p>Answer in the language you think in. Each member has their own voice.</p>
+            <div class="b-vis"><div class="bubble hi"><img src="/static/avatars/p1.svg" alt="" />“आपने इंजीनियरिंग की है, फिर भी प्रशासन क्यों?”</div></div>
+          </article>
+          <article class="b-card b-fb">
+            <h3>Feedback you can act on</h3>
+            <p>A verdict on every answer, what was missing, your own points better structured, plus pace and filler words.</p>
+            <div class="b-vis fb">
+              <div class="fb-row"><span>Structure</span><i style="--w:80%"></i></div>
+              <div class="fb-row"><span>Depth</span><i style="--w:55%"></i></div>
+              <div class="fb-row"><span>Clarity</span><i style="--w:70%"></i></div>
+              <p class="fb-miss"><b>Missing:</b> where you would move the database in production.</p>
+              <small class="ex">Example report</small>
+            </div>
+          </article>
         </div>
       </section>
 
@@ -82,18 +129,25 @@
         <h2 id="howTitle" class="center">From resume to feedback in four steps</h2>
         <ol class="how-steps">
           <li><span class="n">1</span><h3>Pick your interview</h3><p>UPSC board, software, core, CA, MBA, bank, consulting, or paste any job description.</p></li>
-          <li><span class="n">2</span><h3>Brief the panel</h3><p>Add your resume and GitHub. The panel reads your code and shows you what it knows.</p></li>
-          <li><span class="n">3</span><h3>Answer out loud</h3><p>Each member has their own voice. They follow up on vague answers and cut you off when you ramble.</p></li>
-          <li><span class="n">4</span><h3>Get feedback</h3><p>A score, what was missing in every answer, your pace and filler words, and what to prepare next.</p></li>
+          <li><span class="n">2</span><h3>Brief the panel</h3><p>Add your resume and GitHub. You see exactly what the panel knows before you start.</p></li>
+          <li><span class="n">3</span><h3>Answer out loud</h3><p>The mic opens after each question. Optional camera recording to check your body language later.</p></li>
+          <li><span class="n">4</span><h3>Get feedback</h3><p>A score, a verdict per answer, and the 5 questions to prepare next. Save it as a PDF.</p></li>
         </ol>
       </section>
 
       <section class="pick" aria-labelledby="pickTitle">
         <span id="tracks-anchor" class="anchor"></span>
-        <p class="eyebrow">Start here</p>
+        <p class="eyebrow">Choose your panel</p>
         <h2 id="pickTitle">Which interview are you preparing for?</h2>
         <div id="tracks" class="tracks"></div>
         <p class="fine">A practice tool. Not affiliated with UPSC, any recruiter or any government body.</p>
+      </section>
+
+      <section class="final">
+        <span class="stack big" aria-hidden="true"><img src="/static/avatars/p1.svg" alt="" /><img src="/static/avatars/p2.svg" alt="" /><img src="/static/avatars/p3.svg" alt="" /><img src="/static/avatars/p4.svg" alt="" /><img src="/static/avatars/p5.svg" alt="" /></span>
+        <h2>The panel is ready when you are.</h2>
+        <p>Ten minutes here beats ten hours of reading answers in your head.</p>
+        <a href="#tracks-anchor" class="btn on-dark lg">Pick your interview <span aria-hidden="true">→</span></a>
       </section>
     </section>
 
@@ -190,7 +244,8 @@
     <div class="actions"><button id="backReport" class="btn ghost">&larr; Back to briefing</button><button id="again" class="btn primary">Start a new interview</button></div>
   </section>
 
-  <footer class="foot"><span>Built on <b>Gnani Prisma</b> (listening) and <b>Gnani Timbre</b> (voices)</span><span id="status"></span></footer>
-  <script type="module" src="/static/app.js?v=3"></script>
+  <footer class="foot"><span>Built on <b>Gnani Prisma</b> (listening) and <b>Gnani Timbre</b> (voices)</span><span id="status"></span><span>Illustrations: <a href="https://heyzoish.gumroad.com/l/notionists" target="_blank" rel="noopener">Notionists</a> by Zoish (CC0)</span></footer>
+  <script type="module" src="/static/app.js?v=5"></script>
+  <script src="/static/hero.js?v=5" defer></script>
 </body>
 </html>
