@@ -28,10 +28,11 @@ I spent a year in UPSC coaching at Vajiram & Ravi in Delhi. Mock interviews were
 
 2. **Brief the panel.** Upload your resume PDF, give a GitHub repo or profile, paste a JD. The app reads the repo tree, README, manifest and the 6 most central code files, and turns them into **code facts tied to real file paths**. You see exactly what the panel knows before you start.
 3. **Face the panel.** Each member has their own Gnani voice. Questions follow the real format: intro, motivation, resume claims, project deep-dive, **questions about a specific file in your repo**, fundamentals, DSA reasoning, scenarios, current affairs, cases. Members follow up when an answer is vague.
-4. **It feels like a room.** Members whisper to each other, sigh at one-line answers, and the chair cuts you off when you ramble (Gnani Timbre audio tags). Three moods: friendly, standard, stress interview.
-5. **Get feedback.** Scores on a track-specific rubric, a verdict and "what was missing" per question, 5 questions to prepare next, and how you spoke (pace, filler words, answer length). Save as PDF.
-6. **Watch yourself.** Optional camera recording of the whole interview (your video, your voice and the panel's voices). The camera is hidden while you answer; afterwards the report has a player with Q1, Q2... chapter buttons so you can check eye contact, expressions and posture. The video never leaves your browser; you can download it.
-7. **Hear yourself do better.** Optional: record 20 seconds, and your better-structured answers play back **in your own cloned voice**.
+4. **Ask the panel back.** Say "which file do you mean?", "can you repeat?" or "what did you see in my project?" and the member who asked answers from your dossier (repo facts, projects, JD), then re-asks. It does not use up a question, and the chair stops after two clarifications in a row.
+5. **It feels like a room.** Members whisper to each other, sigh at one-line answers, and the chair cuts you off when you ramble (Gnani Timbre audio tags). Three moods: friendly, standard, stress interview.
+6. **Get feedback.** Scores on a track-specific rubric, a verdict and "what was missing" per question, 5 questions to prepare next, and how you spoke (pace, filler words, answer length). Save as PDF.
+7. **Watch yourself.** Optional camera recording of the whole interview (your video, your voice and the panel's voices). The camera is hidden while you answer; afterwards the report has a player with Q1, Q2... chapter buttons so you can check eye contact, expressions and posture. The video never leaves your browser; you can download it.
+8. **Hear yourself do better.** Optional: record 20 seconds, and your better-structured answers play back **in your own cloned voice**.
 
 ## How it works
 ```
@@ -65,6 +66,6 @@ Resume, repo contents and voice are used only for the live session and are not s
 pip install -r requirements.txt
 cp .env.example .env   # add GNANI_API_KEY and GEMINI_API_KEY
 uvicorn backend.app:app --reload
-python -m pytest -q    # 21 tests
+python -m pytest -q    # 28 tests
 ```
 Without keys the app still runs: browser voice, typed answers and fixed questions.

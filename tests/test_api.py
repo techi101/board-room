@@ -103,3 +103,38 @@ def test_per_ip_limit():
     for _ in range(limits.PER_IP["intake"]):
         assert limits.allow("1.2.3.4", "intake")
     assert not limits.allow("1.2.3.4", "intake")
+
+
+def test_looks_like_question():
+    assert board.looks_like_question("Sorry, which file do you mean?", "en")
+    assert board.looks_like_question("can you repeat the question", "en")
+    assert board.looks_like_question("क्या आप प्रश्न दोहरा सकते हैं", "hi")
+    assert not board.looks_like_question("I used FastAPI because it is async and simple to test", "en")
+    assert not board.looks_like_question("", "en")
+    long_answer = "I built the backend in FastAPI and wrote the retry logic myself and later in my project I added caching"
+    assert not board.looks_like_question(long_answer, "en")
+
+
+def test_candidate_question_gets_reply_without_using_a_slot(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    s = {"track": "software", "lang": "en", "plan": "short", "dossier": {}, "history": []}
+    first = c.post("/api/turn", json=s).json()["next"]
+    s["history"].append({"speaker": first["speaker"], "question": first["text"], "qtype": first["qtype"],
+                         "answer": "Sorry, can you repeat that?", "seconds": 2})
+    j = c.post("/api/turn", json=s).json()
+    r = j["next"]
+    assert j["reaction"] is None  # no sigh at a short clarifying question
+    assert r["kind"] == "reply" and r["speaker"] == first["speaker"] and r["index"] == first["index"]
+    assert first["text"] in r["text"]
+    s["history"].append({"speaker": r["speaker"], "question": r["text"], "kind": "reply",
+                         "answer": "My answer is long enough here", "seconds": 10})
+    n2 = c.post("/api/turn", json=s).json()["next"]
+    assert n2["kind"] == "question" and n2["index"] == 1
+
+
+def test_reply_loop_is_capped(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    q = {"speaker": "hr", "question": "Tell me about yourself.", "answer": "Can you repeat?", "seconds": 2}
+    h = [q, q | {"kind": "reply"}, q | {"kind": "reply"}]
+    s = {"track": "software", "lang": "en", "plan": "short", "dossier": {}, "history": h}
+    assert c.post("/api/turn", json=s).json()["next"]["kind"] == "question"

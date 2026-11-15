@@ -299,9 +299,11 @@ async function nextTurn() {
   }
   const n = data.next;
   if (n.done) return finish();
-  pending = { speaker: n.speaker, question: strip(n.text) };
-  cam.mark(`Q${n.index + 1} · ${LABELS[n.qtype] || ""}`);
-  $("progress").textContent = `${n.index + 1} / ${n.total} · ${LABELS[n.qtype] || ""}`;
+  const isReply = n.kind === "reply";
+  pending = { speaker: n.speaker, question: strip(n.text), kind: n.kind || "question", qtype: n.qtype || "" };
+  const label = isReply ? "Answering your question" : (LABELS[n.qtype] || "");
+  if (!isReply) cam.mark(`Q${n.index + 1} · ${label}`);
+  $("progress").textContent = `${n.index + 1} / ${n.total} · ${label}`;
   $("progressFill").style.width = `${((n.index + 1) / n.total) * 100}%`;
   $("speaker").textContent = n.title;
   $("question").textContent = strip(n.text);

@@ -49,6 +49,8 @@ class Turn(BaseModel):
     question: str
     answer: str = ""
     seconds: float = 0
+    kind: str = Field("question", pattern="^(question|reply)$")
+    qtype: str = ""
 
 
 class Session(BaseModel):
@@ -110,14 +112,14 @@ async def turn(req: Session, request: Request):
     _check_track(req.track)
     guard(request, "turn")
     history = [t.model_dump() for t in req.history]
-    react = None
-    if history:
-        last = history[-1]
-        react = board.reaction(req.track, req.lang, req.pressure, last["answer"], last["seconds"], len(history))
     try:
         nxt = await board.next_turn(req.track, req.lang, req.plan, req.pressure, req.dossier, history)
     except (llm.LLMError, KeyError, StopIteration) as e:
         raise HTTPException(502, f"panel error: {e}")
+    react = None
+    if history and nxt.get("kind") != "reply":  # no sigh at "sorry, which file?"
+        last = history[-1]
+        react = board.reaction(req.track, req.lang, req.pressure, last["answer"], last["seconds"], len(history))
     return {"reaction": react, "next": nxt}
 
 

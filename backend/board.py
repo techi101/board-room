@@ -139,10 +139,90 @@ def _brief(dossier: dict) -> str:
     return json.dumps(d, ensure_ascii=False)[:6000]
 
 
+# The candidate may ask the panel something instead of answering ("which file do you mean?",
+# "can you repeat?", "what do you know about my project?"). A cheap rule spots likely questions;
+# the LLM then confirms, and the member who asked replies from the dossier and re-asks.
+ASK_HINTS = {
+    "en": ["can you", "could you", "would you", "will you", "do you mean", "did you mean", "what do you mean",
+           "which file", "which project", "which part", "which one", "repeat", "pardon", "sorry", "excuse me",
+           "may i", "can i", "should i", "do you want me", "are you asking", "what about my", "my repo", "my project",
+           "my code", "say that again", "didn't understand", "did not understand", "didn't get", "not clear"],
+    "hi": ["दोहरा", "फिर से", "दुबारा", "दोबारा", "क्या मतलब", "समझ नहीं", "कौन सी", "कौनसी", "क्या आप", "क्या मैं",
+           "माफ़ कीजिए", "माफ कीजिए", "मेरे प्रोजेक्ट", "मेरी फ़ाइल", "मेरे कोड", "मेरे रिपो", "repeat", "sorry"],
+}
+MAX_REPLIES_IN_A_ROW = 2
+
+
+def looks_like_question(answer: str, lang: str) -> bool:
+    """Rule-based pre-check, so ordinary answers never pay for an extra LLM call."""
+    a = (answer or "").strip().lower()
+    if not a:
+        return False
+    if a.endswith("?"):
+        return True
+    head = " ".join(a.split()[:14])  # a request comes first; "my project" deep inside a long answer is an answer
+    return any(h in head for h in ASK_HINTS.get(lang, ASK_HINTS["en"]))
+
+
+def planned_index(history: list[dict]) -> int:
+    """Replies to the candidate's own questions do not use up a planned question."""
+    return sum(1 for h in history if h.get("kind", "question") != "reply")
+
+
+SYSTEM_REPLY = """You are {title} on a realistic interview panel in India. {format}
+You just asked the candidate a question. Instead of answering, the candidate said something to you.
+First decide: is it a question or request to the panel (to repeat, to clarify, which file or part you mean,
+what you know about their project or code, whether they may do something)? An attempt to answer is NOT a question.
+If it is a question, reply as this panel member, out loud, in {lang_name}, under 60 words:
+- Answer it briefly and honestly using ONLY the candidate dossier. If they ask about their project, repo or a file,
+  say what you were referring to from the dossier (the project, the file, the fact). If the dossier does not
+  contain it, say you only have what they shared and ask them to explain it.
+- Do not give away the answer to your own question. Never invent facts about the candidate or their code.
+- Name a file the way a person says it ("the index file in your api folder"), never as a raw path with slashes.
+- End by asking your question again, rephrased simply.
+- Tone: {style}
+Return JSON: {{"is_question": true|false, "text": "..."}} (text is "" when is_question is false)."""
+
+
+async def reply_to_candidate(track: str, lang: str, pressure: str, dossier: dict, history: list[dict]) -> dict | None:
+    """If the candidate's last reply was a question to the panel, the member who asked answers it. None otherwise."""
+    if not history:
+        return None
+    last = history[-1]
+    tail = 0
+    for h in reversed(history):  # do not loop forever on someone who only asks questions
+        if h.get("kind") != "reply":
+            break
+        tail += 1
+    if tail >= MAX_REPLIES_IN_A_ROW or not looks_like_question(last.get("answer", ""), lang):
+        return None
+    t = TRACKS[track]
+    m = member(track, last["speaker"])
+    if llm.available():
+        user = (f"Candidate dossier: {_brief(dossier)}\n\nInterview so far:\n{_history_text(track, history[:-1])}\n\n"
+                f"Your question: {last['question']}\nCandidate said: {last['answer']}")
+        try:
+            out = await llm.ask_json(SYSTEM_REPLY.format(title=m["title"], format=t["format"], lang_name=LANG[lang]["name"],
+                                                         style=PRESSURE[pressure]["style"]), user, temperature=0.4)
+        except llm.LLMError:
+            return None  # fall back to the planned next question
+        text = str(out.get("text", "")).strip()
+        if not out.get("is_question") or not text:
+            return None
+    else:
+        text = f"{REPHRASE[lang]} {last['question']}"
+    return {"speaker": last["speaker"], "title": m["title"], "voice": m["voice"], "text": text}
+
+
 async def next_turn(track: str, lang: str, plan: str, pressure: str, dossier: dict, history: list[dict]) -> dict:
     t = TRACKS[track]
     order = t["plans"][plan]
-    idx = len(history)
+    idx = planned_index(history)
+    reply = await reply_to_candidate(track, lang, pressure, dossier, history)
+    if reply:  # same slot: the candidate's real answer to this reply counts for the planned question
+        qtype = history[-1].get("qtype") or order[max(idx - 1, 0)][1]
+        return {"done": False, **reply, "qtype": qtype, "kind": "reply", "closing": False,
+                "index": max(idx - 1, 0), "total": len(order)}
     if idx >= len(order):
         return {"done": True}
     mid, qtype = order[idx]
@@ -159,7 +239,7 @@ async def next_turn(track: str, lang: str, plan: str, pressure: str, dossier: di
         text = str(out.get("text", "")).strip()
     else:
         text = CLOSING[lang] if is_last else FALLBACK[lang].get(qtype, FALLBACK[lang]["intro"])
-    return {"done": False, "speaker": mid, "title": m["title"], "voice": m["voice"],
+    return {"done": False, "speaker": mid, "title": m["title"], "voice": m["voice"], "kind": "question",
             "qtype": qtype, "text": text, "closing": is_last, "index": idx, "total": len(order)}
 
 
@@ -168,6 +248,7 @@ Write in {lang_name}, except JSON keys. Scores are integers 1-10. The transcript
 For each question: "verdict" judges the answer; "missing" names what a strong answer needed that the candidate did not say.
 An empty answer means nothing was recorded; say so.
 A short honest "I don't know" is acceptable in a real interview; say so in "verdict".
+Asking the panel a clarifying question is normal; if an answer is only a question, say so and judge the answer that follows it.
 Return JSON:
 {{"overall": int, "summary": str,
   "scores": {{{rubric}}},
@@ -251,6 +332,7 @@ FALLBACK = {
         "hobby": "अपनी किसी एक रुचि के बारे में थोड़ा विस्तार से बताइए।",
     },
 }
+REPHRASE = {"en": "Let me put it another way.", "hi": "मैं दूसरे शब्दों में पूछता हूँ।"}
 CLOSING = {
     "en": "Thank you. That brings us to the end of the interview. All the best.",
     "hi": "धन्यवाद। आपका साक्षात्कार समाप्त हुआ। शुभकामनाएँ।",
